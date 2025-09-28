@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  data:
+    redis:
+      port: 6379
+      host: localhost
+open:
+  api:
+    title: API Document
+    version: v1.0.0
+    description: EXE course Grouping Management System for FPT Campus API Service
+    serverUrl: http://localhost:8080
+    serverName: Local Dev Server
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  valid-duration: 300
+  refreshable-duration: 1800
+outbound:
+  identity:
+    client-id: ${OUTBOUND_IDENTITY_CLIENT_ID}
+    client-secret: ${OUTBOUND_IDENTITY_CLIENT_SECRET}
+    redirect-uri: ${OUTBOUND_IDENTITY_REDIRECT_URI}
+management:
+  endpoint:
+    web:
+      exposure:
+        include: "*"
