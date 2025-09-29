@@ -9,6 +9,9 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
   data:
     redis:
       port: 6379
@@ -18,8 +21,8 @@ open:
     title: API Document
     version: v1.0.0
     description: EXE course Grouping Management System for FPT Campus API Service
-    serverUrl: http://localhost:8080
-    serverName: Local Dev Server
+    serverUrl: ${OPENAPI_SERVER_URL}
+    serverName: ${OPENAPI_SERVER_NAME}
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
