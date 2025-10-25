@@ -13,5 +13,4 @@ import java.util.Set;
 public class RoleResponse {
     Long roleId;
     String roleName;
-    Set<PermissionResponse> permissions;
 }

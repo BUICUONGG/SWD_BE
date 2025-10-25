@@ -1,5 +1,10 @@
 package swd.fpt.exegroupingmanagement.service.impl;
 
+import java.util.List;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,10 +21,6 @@ import swd.fpt.exegroupingmanagement.exception.exceptions.UnauthorizedException;
 import swd.fpt.exegroupingmanagement.mapper.UserMapper;
 import swd.fpt.exegroupingmanagement.repository.UserRepository;
 import swd.fpt.exegroupingmanagement.service.UserService;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -71,7 +72,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         UserEntity user = getUserById(id);
-        user.getRoles().forEach(this::handleAdminUser);
+        if (user.getRole() != null) {
+            handleAdminUser(user.getRole());
+        }
         user.setStatus(UserStatus.LOCKED);
         user.setDeleted(true);
         userRepository.save(user);

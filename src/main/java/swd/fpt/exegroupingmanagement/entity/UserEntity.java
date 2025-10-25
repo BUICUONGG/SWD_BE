@@ -61,9 +61,7 @@ public class UserEntity extends BaseEntity{
     @Column(name="dob")
     LocalDate dob;
 
-    @ManyToMany
-    @JoinTable(name="user_role",
-            joinColumns = @JoinColumn(name="user_id"),
-            inverseJoinColumns = @JoinColumn(name="role_id"))
-    Set<RoleEntity> roles;
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    RoleEntity role;
 }
