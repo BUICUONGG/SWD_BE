@@ -95,7 +95,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-
     public SignedJWT verifyToken(String token, boolean isRefresh) throws ParseException, JOSEException {
         JWSVerifier verifier = new MACVerifier(secretKey.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
@@ -112,7 +111,6 @@ public class JwtServiceImpl implements JwtService {
         }
         return signedJWT;
     }
-
 
     public Map<String, Object> buildClaims(UserEntity user) {
         Map<String, Object> claims = new HashMap<>();
