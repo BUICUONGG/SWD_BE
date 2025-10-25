@@ -1,14 +1,23 @@
 package swd.fpt.exegroupingmanagement.entity;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
 import lombok.*;
+import org.hibernate.annotations.Nationalized;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Nationalized;
 import swd.fpt.exegroupingmanagement.enums.CourseStatus;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -37,26 +46,17 @@ public class CourseEntity extends BaseEntity {
     @Column(name = "current_students")
     @Builder.Default
     Integer currentStudents = 0; 
-    
+
     
     @Column(name = "team_formation_deadline")
     LocalDateTime teamFormationDeadline; // Deadline ghép nhóm
-
-    @Column(name = "start_date")
-    LocalDate startDate;
-    
-    @Column(name = "end_date")
-    LocalDate endDate;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     CourseStatus status = CourseStatus.OPEN;
     
-    @Column(name = "is_active")
-    @Builder.Default
-    Boolean isActive = true;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentor_id")
     UserEntity mentor;  

@@ -1,117 +1,120 @@
 package swd.fpt.exegroupingmanagement.controller;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import swd.fpt.exegroupingmanagement.dto.request.CreateCourseRequest;
+import lombok.experimental.FieldDefaults;
+import swd.fpt.exegroupingmanagement.dto.request.CourseRequest;
+import swd.fpt.exegroupingmanagement.dto.response.ApiResponse;
 import swd.fpt.exegroupingmanagement.dto.response.CourseResponse;
-import swd.fpt.exegroupingmanagement.dto.response.StandardResponse;
+import swd.fpt.exegroupingmanagement.enums.CourseStatus;
 import swd.fpt.exegroupingmanagement.service.CourseService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
-@Slf4j
-@Tag(name = "Course Management", description = "Endpoints for managing courses")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Tag(name = "Course Management", description = "APIs for managing courses")
 public class CourseController {
-    
-    private final CourseService courseService;
-    
+    CourseService courseService;
+
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Create new course (Admin only)")
-    public ResponseEntity<StandardResponse<CourseResponse>> createCourse(
-            @Valid @RequestBody CreateCourseRequest request) {
-        
-        log.info("Creating course: {}", request.getCode());
-        
-        CourseResponse response = courseService.createCourse(request);
-        
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(StandardResponse.<CourseResponse>builder()
-                .success(true)
-                .message("Course created successfully")
-                .data(response)
-                .build());
+    @Operation(summary = "Create a new course")
+    public ApiResponse<CourseResponse> create(@Valid @RequestBody CourseRequest request) {
+        return ApiResponse.<CourseResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Tạo lớp học thành công")
+                .result(courseService.create(request))
+                .build();
     }
-    
-    @GetMapping("/{courseId}")
-    @Operation(summary = "Get course details")
-    public ResponseEntity<StandardResponse<CourseResponse>> getCourse(
-            @PathVariable Long courseId) {
-        
-        CourseResponse response = courseService.getCourseById(courseId);
-        
-        return ResponseEntity.ok(StandardResponse.<CourseResponse>builder()
-            .success(true)
-            .data(response)
-            .build());
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get course by ID")
+    public ApiResponse<CourseResponse> getById(@PathVariable Long id) {
+        return ApiResponse.<CourseResponse>builder()
+                .code(HttpStatus.OK.value())
+                .result(courseService.getById(id))
+                .build();
     }
-    
+
+    @GetMapping("/code/{code}")
+    @Operation(summary = "Get course by code")
+    public ApiResponse<CourseResponse> getByCode(@PathVariable String code) {
+        return ApiResponse.<CourseResponse>builder()
+                .code(HttpStatus.OK.value())
+                .result(courseService.getByCode(code))
+                .build();
+    }
+
     @GetMapping
     @Operation(summary = "Get all courses")
-    public ResponseEntity<StandardResponse<List<CourseResponse>>> getAllCourses() {
-        
-        List<CourseResponse> response = courseService.getAllCourses();
-        
-        return ResponseEntity.ok(StandardResponse.<List<CourseResponse>>builder()
-            .success(true)
-            .data(response)
-            .build());
+    public ApiResponse<List<CourseResponse>> getAll() {
+        return ApiResponse.<List<CourseResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .result(courseService.getAll())
+                .build();
     }
-    
+
+    @GetMapping("/status/{status}")
+    @Operation(summary = "Get courses by status")
+    public ApiResponse<List<CourseResponse>> getByStatus(@PathVariable CourseStatus status) {
+        return ApiResponse.<List<CourseResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .result(courseService.getByStatus(status))
+                .build();
+    }
+
     @GetMapping("/semester/{semesterId}")
     @Operation(summary = "Get courses by semester")
-    public ResponseEntity<StandardResponse<List<CourseResponse>>> getCoursesBySemester(
-            @PathVariable Long semesterId) {
-        
-        List<CourseResponse> response = courseService.getCoursesBySemester(semesterId);
-        
-        return ResponseEntity.ok(StandardResponse.<List<CourseResponse>>builder()
-            .success(true)
-            .data(response)
-            .build());
+    public ApiResponse<List<CourseResponse>> getBySemester(@PathVariable Long semesterId) {
+        return ApiResponse.<List<CourseResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .result(courseService.getBySemester(semesterId))
+                .build();
     }
-    
-    @PatchMapping("/{courseId}/assign-mentor")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Assign mentor to course (Admin only)")
-    public ResponseEntity<StandardResponse<CourseResponse>> assignMentor(
-            @PathVariable Long courseId,
-            @RequestParam Long mentorId) {
-        
-        log.info("Assigning mentor {} to course {}", mentorId, courseId);
-        
-        CourseResponse response = courseService.assignMentor(courseId, mentorId);
-        
-        return ResponseEntity.ok(StandardResponse.<CourseResponse>builder()
-            .success(true)
-            .message("Mentor assigned successfully")
-            .data(response)
-            .build());
+
+    @GetMapping("/mentor/{mentorId}")
+    @Operation(summary = "Get courses by mentor")
+    public ApiResponse<List<CourseResponse>> getByMentor(@PathVariable Long mentorId) {
+        return ApiResponse.<List<CourseResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .result(courseService.getByMentor(mentorId))
+                .build();
     }
-    
-    @DeleteMapping("/{courseId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete course (Admin only)")
-    public ResponseEntity<StandardResponse<Void>> deleteCourse(@PathVariable Long courseId) {
-        
-        log.info("Deleting course: {}", courseId);
-        
-        courseService.deleteCourse(courseId);
-        
-        return ResponseEntity.ok(StandardResponse.<Void>builder()
-            .success(true)
-            .message("Course deleted successfully")
-            .build());
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update course")
+    public ApiResponse<CourseResponse> update(
+            @PathVariable Long id,
+            @Valid @RequestBody CourseRequest request) {
+        return ApiResponse.<CourseResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Cập nhật lớp học thành công")
+                .result(courseService.update(id, request))
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete course")
+    public ApiResponse<Void> delete(@PathVariable Long id) {
+        courseService.delete(id);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Xóa lớp học thành công")
+                .build();
     }
 }
-

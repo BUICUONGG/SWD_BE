@@ -1,10 +1,14 @@
 package swd.fpt.exegroupingmanagement.service.impl;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import swd.fpt.exegroupingmanagement.dto.request.CreateCourseRequest;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import swd.fpt.exegroupingmanagement.dto.request.CourseRequest;
 import swd.fpt.exegroupingmanagement.dto.response.CourseResponse;
 import swd.fpt.exegroupingmanagement.entity.CourseEntity;
 import swd.fpt.exegroupingmanagement.entity.SemesterEntity;
@@ -13,175 +17,140 @@ import swd.fpt.exegroupingmanagement.entity.UserEntity;
 import swd.fpt.exegroupingmanagement.enums.CourseStatus;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceConflictException;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceNotFoundException;
+import swd.fpt.exegroupingmanagement.mapper.CourseMapper;
 import swd.fpt.exegroupingmanagement.repository.CourseRepository;
 import swd.fpt.exegroupingmanagement.repository.SemesterRepository;
 import swd.fpt.exegroupingmanagement.repository.SubjectRepository;
 import swd.fpt.exegroupingmanagement.repository.UserRepository;
 import swd.fpt.exegroupingmanagement.service.CourseService;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CourseServiceImpl implements CourseService {
-    
-    private final CourseRepository courseRepository;
-    private final SubjectRepository subjectRepository;
-    private final SemesterRepository semesterRepository;
-    private final UserRepository userRepository;
-    
+    CourseRepository courseRepository;
+    SubjectRepository subjectRepository;
+    SemesterRepository semesterRepository;
+    UserRepository userRepository;
+    CourseMapper courseMapper;
+
     @Override
     @Transactional
-    public CourseResponse createCourse(CreateCourseRequest request) {
-        log.info("Creating course with code: {}", request.getCode());
-        
-        // Validate
+    public CourseResponse create(CourseRequest request) {
         if (courseRepository.existsByCode(request.getCode())) {
-            throw new ResourceConflictException("Course code already exists");
+            throw new ResourceConflictException("Mã lớp đã tồn tại");
         }
         
-        if (!subjectRepository.existsById(request.getSubjectId())) {
-            throw new ResourceNotFoundException("Subject not found");
+        CourseEntity entity = courseMapper.toEntity(request);
+        
+        // Set subject
+        SubjectEntity subject = subjectRepository.findById(request.getSubjectId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy môn học"));
+        entity.setSubject(subject);
+        
+        // Set semester
+        SemesterEntity semester = semesterRepository.findById(request.getSemesterId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy kỳ học"));
+        entity.setSemester(semester);
+        
+        // Set mentor if provided
+        if (request.getMentorId() != null) {
+            UserEntity mentor = userRepository.findById(request.getMentorId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên"));
+            entity.setMentor(mentor);
         }
         
-        if (!semesterRepository.existsById(request.getSemesterId())) {
-            throw new ResourceNotFoundException("Semester not found");
+        // Set default values
+        if (entity.getStatus() == null) {
+            entity.setStatus(CourseStatus.OPEN);
+        }
+        if (entity.getCurrentStudents() == null) {
+            entity.setCurrentStudents(0);
         }
         
-        if (request.getMentorId() != null && !userRepository.existsById(request.getMentorId())) {
-            throw new ResourceNotFoundException("Mentor not found");
-        }
-        
-        // Create Course
-        CourseEntity course = CourseEntity.builder()
-            .subjectId(request.getSubjectId())
-            .semesterId(request.getSemesterId())
-            .mentorId(request.getMentorId())
-            .code(request.getCode())
-            .name(request.getName())
-            .description(request.getDescription())
-            .maxStudents(request.getMaxStudents())
-            .minStudents(request.getMinStudents())
-            .maxTeamSize(request.getMaxTeamSize())
-            .minTeamSize(request.getMinTeamSize())
-            .allowTeamFormation(request.getAllowTeamFormation() != null ? request.getAllowTeamFormation() : true)
-            .teamFormationDeadline(request.getTeamFormationDeadline())
-            .schedule(request.getSchedule())
-            .room(request.getRoom())
-            .startDate(request.getStartDate())
-            .endDate(request.getEndDate())
-            .status(CourseStatus.DRAFT)
-            .isActive(true)
-            .build();
-        
-        CourseEntity savedCourse = courseRepository.save(course);
-        
-        log.info("Course created successfully: {}", savedCourse.getCourseId());
-        
-        return mapToResponse(savedCourse);
+        CourseEntity saved = courseRepository.save(entity);
+        return courseMapper.toResponse(saved);
     }
-    
+
     @Override
-    public CourseResponse getCourseById(Long courseId) {
-        CourseEntity course = courseRepository.findById(courseId)
-            .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-        
-        return mapToResponse(course);
+    public CourseResponse getById(Long id) {
+        CourseEntity entity = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lớp"));
+        return courseMapper.toResponse(entity);
     }
-    
+
     @Override
-    public List<CourseResponse> getAllCourses() {
-        return courseRepository.findByIsDeletedFalse().stream()
-            .map(this::mapToResponse)
-            .collect(Collectors.toList());
+    public CourseResponse getByCode(String code) {
+        CourseEntity entity = courseRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lớp"));
+        return courseMapper.toResponse(entity);
     }
-    
+
     @Override
-    public List<CourseResponse> getCoursesByMentor(Long mentorId) {
-        return courseRepository.findByMentorId(mentorId).stream()
-            .filter(c -> !c.isDeleted())
-            .map(this::mapToResponse)
-            .collect(Collectors.toList());
+    public List<CourseResponse> getAll() {
+        List<CourseEntity> entities = courseRepository.findAll();
+        return courseMapper.toResponseList(entities);
     }
-    
+
     @Override
-    public List<CourseResponse> getCoursesBySemester(Long semesterId) {
-        return courseRepository.findBySemesterId(semesterId).stream()
-            .filter(c -> !c.isDeleted())
-            .map(this::mapToResponse)
-            .collect(Collectors.toList());
+    public List<CourseResponse> getByStatus(CourseStatus status) {
+        List<CourseEntity> entities = courseRepository.findByStatus(status);
+        return courseMapper.toResponseList(entities);
     }
-    
+
+    @Override
+    public List<CourseResponse> getBySemester(Long semesterId) {
+        List<CourseEntity> entities = courseRepository.findBySemester_SemesterId(semesterId);
+        return courseMapper.toResponseList(entities);
+    }
+
+    @Override
+    public List<CourseResponse> getByMentor(Long mentorId) {
+        List<CourseEntity> entities = courseRepository.findByMentor_UserId(mentorId);
+        return courseMapper.toResponseList(entities);
+    }
+
     @Override
     @Transactional
-    public CourseResponse assignMentor(Long courseId, Long mentorId) {
-        log.info("Assigning mentor {} to course {}", mentorId, courseId);
+    public CourseResponse update(Long id, CourseRequest request) {
+        CourseEntity entity = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lớp"));
         
-        CourseEntity course = courseRepository.findById(courseId)
-            .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-        
-        if (!userRepository.existsById(mentorId)) {
-            throw new ResourceNotFoundException("Mentor not found");
+        if (!entity.getCode().equals(request.getCode()) && 
+            courseRepository.existsByCode(request.getCode())) {
+            throw new ResourceConflictException("Mã lớp đã tồn tại");
         }
         
-        course.setMentorId(mentorId);
-        CourseEntity updated = courseRepository.save(course);
+        courseMapper.updateEntity(entity, request);
         
-        log.info("Mentor assigned successfully");
+        // Update subject
+        SubjectEntity subject = subjectRepository.findById(request.getSubjectId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy môn học"));
+        entity.setSubject(subject);
         
-        return mapToResponse(updated);
+        // Update semester
+        SemesterEntity semester = semesterRepository.findById(request.getSemesterId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy kỳ học"));
+        entity.setSemester(semester);
+        
+        // Update mentor
+        if (request.getMentorId() != null) {
+            UserEntity mentor = userRepository.findById(request.getMentorId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên"));
+            entity.setMentor(mentor);
+        } else {
+            entity.setMentor(null);
+        }
+        
+        CourseEntity updated = courseRepository.save(entity);
+        return courseMapper.toResponse(updated);
     }
-    
+
     @Override
     @Transactional
-    public void deleteCourse(Long courseId) {
-        log.info("Deleting course: {}", courseId);
-        
-        CourseEntity course = courseRepository.findById(courseId)
-            .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-        
-        course.setDeleted(true);
-        courseRepository.save(course);
-        
-        log.info("Course deleted successfully: {}", courseId);
-    }
-    
-    // ===== MAPPING METHOD =====
-    private CourseResponse mapToResponse(CourseEntity course) {
-        SubjectEntity subject = subjectRepository.findById(course.getSubjectId()).orElse(null);
-        SemesterEntity semester = semesterRepository.findById(course.getSemesterId()).orElse(null);
-        UserEntity mentor = course.getMentorId() != null ? 
-            userRepository.findById(course.getMentorId()).orElse(null) : null;
-        
-        return CourseResponse.builder()
-            .courseId(course.getCourseId())
-            .subjectId(course.getSubjectId())
-            .subjectName(subject != null ? subject.getName() : null)
-            .semesterId(course.getSemesterId())
-            .semesterName(semester != null ? semester.getName() : null)
-            .mentorId(course.getMentorId())
-            .mentorName(mentor != null ? mentor.getFullName() : null)
-            .code(course.getCode())
-            .name(course.getName())
-            .description(course.getDescription())
-            .maxStudents(course.getMaxStudents())
-            .currentStudents(course.getCurrentStudents())
-            .minStudents(course.getMinStudents())
-            .maxTeamSize(course.getMaxTeamSize())
-            .minTeamSize(course.getMinTeamSize())
-            .allowTeamFormation(course.getAllowTeamFormation())
-            .teamFormationDeadline(course.getTeamFormationDeadline())
-            .schedule(course.getSchedule())
-            .room(course.getRoom())
-            .startDate(course.getStartDate())
-            .endDate(course.getEndDate())
-            .status(course.getStatus())
-            .isActive(course.getIsActive())
-            .createdAt(course.getCreatedAt())
-            .updatedAt(course.getUpdatedAt())
-            .build();
+    public void delete(Long id) {
+        CourseEntity entity = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lớp"));
+        courseRepository.delete(entity);
     }
 }
-
