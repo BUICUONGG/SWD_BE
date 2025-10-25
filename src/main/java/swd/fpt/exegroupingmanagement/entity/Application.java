@@ -2,36 +2,38 @@ package swd.fpt.exegroupingmanagement.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
+import swd.fpt.exegroupingmanagement.enums.ApplicationStatus;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@SuperBuilder
 @Table(name = "application", schema = "exegrouping")
-public class Application {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Application extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "application_id", nullable = false)
-    private Long id;
+    Long id;
 
-    @Size(max = 50)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50)
-    private String status;
+    @Builder.Default
+    ApplicationStatus status = ApplicationStatus.PENDING;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
+    @ManyToOne
+    @JoinColumn(name = "enrollment_id")
+    Enrollment enrollment;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at")
-    private Instant updatedAt;
-
-    @ColumnDefault("0")
-    @Column(name = "is_deleted")
-    private Boolean isDeleted;
-
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    Team team;
 }
