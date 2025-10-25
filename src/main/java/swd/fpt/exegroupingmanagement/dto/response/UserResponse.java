@@ -24,7 +24,6 @@ public class UserResponse extends ResponseAbstract{
     Gender gender = Gender.FEMALE;
     LocalDate dob;
 
-
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -32,6 +31,6 @@ public class UserResponse extends ResponseAbstract{
     public static class UserLoginResponse{
         String accessToken;
         String refreshToken;
-        Set<RoleResponse> roles;
+        String roleName;
     }
 }

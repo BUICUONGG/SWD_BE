@@ -1,6 +1,13 @@
 package swd.fpt.exegroupingmanagement.config;
 
 
+import java.time.LocalDate;
+
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -9,16 +16,8 @@ import swd.fpt.exegroupingmanagement.constant.PredefinedRole;
 import swd.fpt.exegroupingmanagement.entity.RoleEntity;
 import swd.fpt.exegroupingmanagement.entity.UserEntity;
 import swd.fpt.exegroupingmanagement.enums.UserStatus;
-import swd.fpt.exegroupingmanagement.repository.PermissionRepository;
 import swd.fpt.exegroupingmanagement.repository.RoleRepository;
 import swd.fpt.exegroupingmanagement.repository.UserRepository;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.LocalDate;
-import java.util.Set;
 
 @Slf4j
 @Configuration
@@ -27,7 +26,6 @@ import java.util.Set;
 public class ApplicationInitConfig {
     UserRepository userRepository;
     RoleRepository roleRepository;
-    PermissionRepository permissionRepository;
     PasswordEncoder passwordEncoder;
     @Bean
     ApplicationRunner applicationRunner() {
@@ -35,7 +33,6 @@ public class ApplicationInitConfig {
             if (roleRepository.findByRoleName(PredefinedRole.ROLE_ADMIN).isEmpty()) {
                 RoleEntity adminRole = RoleEntity.builder()
                         .roleName(PredefinedRole.ROLE_ADMIN)
-//                        .permissions(new HashSet<>(permissions.values()))
                         .build();
                 roleRepository.save(adminRole);
                 UserEntity adminAccount = UserEntity.builder()
@@ -44,7 +41,7 @@ public class ApplicationInitConfig {
                         .status(UserStatus.ACTIVE)
                         .dob(LocalDate.of(2000, 1, 1))
                         .avatarUrl("https://vi.wikipedia.org/wiki/Cristiano_Ronaldo")
-                        .roles(Set.of(adminRole))
+                        .role(adminRole)
                         .passwordHash(passwordEncoder.encode("admin"))
                         .build();
                 userRepository.save(adminAccount);
@@ -63,7 +60,7 @@ public class ApplicationInitConfig {
                         .status(UserStatus.ACTIVE)
                         .dob(LocalDate.of(2000, 1, 1))
                         .avatarUrl("https://example.com/student-avatar.png")
-                        .roles(Set.of(studentRole))
+                        .role(studentRole)
                         .passwordHash(passwordEncoder.encode("student"))
                         .build();
                 userRepository.save(studentAccount);
@@ -72,7 +69,6 @@ public class ApplicationInitConfig {
             if (roleRepository.findByRoleName(PredefinedRole.ROLE_MENTOR).isEmpty()) {
                 RoleEntity mentorRole = RoleEntity.builder()
                         .roleName(PredefinedRole.ROLE_MENTOR)
-//                        .permissions(mentorPermissions)
                         .build();
                 roleRepository.save(mentorRole);
                 UserEntity mentorAccount = UserEntity.builder()
@@ -81,7 +77,7 @@ public class ApplicationInitConfig {
                         .status(UserStatus.ACTIVE)
                         .dob(LocalDate.of(2000, 1, 1))
                         .avatarUrl("https://example.com/mentor-avatar.png")
-                        .roles(Set.of(mentorRole))
+                        .role(mentorRole)
                         .passwordHash(passwordEncoder.encode("mentor"))
                         .build();
                 userRepository.save(mentorAccount);

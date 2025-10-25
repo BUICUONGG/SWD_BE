@@ -11,7 +11,7 @@ public interface RoleService {
     List<RoleResponse> getAllRoles();
     RoleResponse add(RoleRequest roleRequest);
     RoleResponse update(Long id,RoleRequest roleRequest);
-    void update(Long roleID, Long permissionID);
+//    void update(Long roleID, Long permissionID);
     void softDelete(Long id);
     void restore(Long id);
     RoleResponse findByIdToResponse(Long id);

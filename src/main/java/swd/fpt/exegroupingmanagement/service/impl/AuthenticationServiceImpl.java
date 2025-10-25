@@ -1,15 +1,34 @@
 package swd.fpt.exegroupingmanagement.service.impl;
 
-import com.nimbusds.jose.*;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import swd.fpt.exegroupingmanagement.constant.PredefinedRole;
-import swd.fpt.exegroupingmanagement.dto.request.*;
-import swd.fpt.exegroupingmanagement.dto.response.*;
+import swd.fpt.exegroupingmanagement.dto.request.ExchangeTokenRequest;
+import swd.fpt.exegroupingmanagement.dto.request.IntrospectRequest;
+import swd.fpt.exegroupingmanagement.dto.request.LogoutRequest;
+import swd.fpt.exegroupingmanagement.dto.request.RefreshTokenRequest;
+import swd.fpt.exegroupingmanagement.dto.request.RegisterRequest;
+import swd.fpt.exegroupingmanagement.dto.request.UserLoginRequest;
+import swd.fpt.exegroupingmanagement.dto.response.ExchangeTokenResponse;
+import swd.fpt.exegroupingmanagement.dto.response.IntrospectResponse;
+import swd.fpt.exegroupingmanagement.dto.response.RefreshTokenResponse;
+import swd.fpt.exegroupingmanagement.dto.response.UserResponse;
 import swd.fpt.exegroupingmanagement.entity.RefreshTokenEntity;
 import swd.fpt.exegroupingmanagement.entity.RoleEntity;
 import swd.fpt.exegroupingmanagement.entity.UserEntity;
@@ -18,24 +37,17 @@ import swd.fpt.exegroupingmanagement.exception.ErrorCode;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceConflictException;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceNotFoundException;
 import swd.fpt.exegroupingmanagement.exception.exceptions.UnauthorizedException;
-import swd.fpt.exegroupingmanagement.mapper.RoleMapper;
 import swd.fpt.exegroupingmanagement.mapper.UserMapper;
 import swd.fpt.exegroupingmanagement.repository.RefreshTokenRepository;
 import swd.fpt.exegroupingmanagement.repository.UserRepository;
 import swd.fpt.exegroupingmanagement.repository.httpclient.OutboundAuthClient;
 import swd.fpt.exegroupingmanagement.repository.httpclient.OutboundUserClient;
-import swd.fpt.exegroupingmanagement.service.*;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.text.ParseException;
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import swd.fpt.exegroupingmanagement.service.AuthenticationService;
+import swd.fpt.exegroupingmanagement.service.JwtService;
+import swd.fpt.exegroupingmanagement.service.RedisService;
+import swd.fpt.exegroupingmanagement.service.RefreshTokenService;
+import swd.fpt.exegroupingmanagement.service.RoleService;
+import swd.fpt.exegroupingmanagement.service.UserService;
 
 @Slf4j
 @Service
@@ -46,7 +58,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
-    RoleMapper roleMapper;
     RoleService roleService;
     OutboundAuthClient outboundAuthClient;
     OutboundUserClient outboundUserClient;
@@ -83,7 +94,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .dob(userRegisterRequest.getDob())
                 .gender(userRegisterRequest.getGender())
                 .passwordHash(passwordEncoder.encode(userRegisterRequest.getPassword()))
-                .roles(Set.of(roleEntity))
+                .role(roleEntity)
                 .build();
         userRepository.save(userEntity);
         return userMapper.toEntityDTO(userEntity);
@@ -98,14 +109,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String accessToken = jwtService.generateAccessToken(user);
         RefreshTokenEntity refreshToken = refreshTokenService.createRefreshToken(user);
 
-        Set<RoleResponse> roleResponses = user.getRoles().stream()
-                .map(roleMapper::toRoleResponse)
-                .collect(Collectors.toSet());
+        String roleName = user.getRole() != null ? user.getRole().getRoleName() : null;
 
         return UserResponse.UserLoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
-                .roles(roleResponses)
+                .roleName(roleName)
                 .build();
     }
 
@@ -126,6 +135,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         refreshTokenRepository.delete(refreshTokenEntity);
     }
 
+    @Override
     public UserResponse.UserLoginResponse outboundAuthentication(String code) {
         // Gửi yêu cầu lấy access token từ Google (qua OutboundAuthClient)
         ExchangeTokenRequest request = ExchangeTokenRequest.builder()
@@ -157,16 +167,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                             .passwordHash(passwordEncoder.encode(generateRandomPassword()))
                             .status(UserStatus.ACTIVE)
                             .avatarUrl(userInfo.getPicture())
-                            .roles(Set.of(roleEntity))
+                            .role(roleEntity)
                             .build());
                 });
 
         String accessToken = jwtService.generateAccessToken(userEntity);
         RefreshTokenEntity refreshTokenEntity = refreshTokenService.createRefreshToken(userEntity);
 
+        String roleName = userEntity.getRole() != null ? userEntity.getRole().getRoleName() : null;
+
         return UserResponse.UserLoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshTokenEntity.getToken()) // lấy từ DB
+                .roleName(roleName)
                 .build();
     }
 
