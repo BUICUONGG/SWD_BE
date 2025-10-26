@@ -2,6 +2,7 @@ package swd.fpt.exegroupingmanagement.dto.request;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,6 +27,7 @@ public class CourseRequest {
     @Min(value = 1, message = "Số sinh viên tối đa phải lớn hơn 0")
     Integer maxStudents;
     
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime teamFormationDeadline;
     
     CourseStatus status;

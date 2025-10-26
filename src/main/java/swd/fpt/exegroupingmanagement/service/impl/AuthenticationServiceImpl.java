@@ -32,6 +32,7 @@ import swd.fpt.exegroupingmanagement.dto.response.UserResponse;
 import swd.fpt.exegroupingmanagement.entity.RefreshTokenEntity;
 import swd.fpt.exegroupingmanagement.entity.RoleEntity;
 import swd.fpt.exegroupingmanagement.entity.UserEntity;
+import swd.fpt.exegroupingmanagement.enums.Provider;
 import swd.fpt.exegroupingmanagement.enums.UserStatus;
 import swd.fpt.exegroupingmanagement.exception.ErrorCode;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceConflictException;
@@ -166,6 +167,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                             .fullName(userInfo.getFamilyName() + " " + userInfo.getGivenName())
                             .passwordHash(passwordEncoder.encode(generateRandomPassword()))
                             .status(UserStatus.ACTIVE)
+                            .provider(Provider.GOOGLE)
                             .avatarUrl(userInfo.getPicture())
                             .role(roleEntity)
                             .build());

@@ -8,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SubjectResponse extends ResponseAbstract {
+public class SubjectResponse {
     Long subjectId;
     String code;
     String name;

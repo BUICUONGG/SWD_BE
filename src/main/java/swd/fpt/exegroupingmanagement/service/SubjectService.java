@@ -12,5 +12,8 @@ public interface SubjectService {
     List<SubjectResponse> getAll();
     SubjectResponse update(Long id, SubjectRequest request);
     void delete(Long id);
+    
+    // Search method
+    List<SubjectResponse> searchSubjects(String keyword);
 }
 

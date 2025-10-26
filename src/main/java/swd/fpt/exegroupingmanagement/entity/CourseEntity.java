@@ -2,19 +2,10 @@ package swd.fpt.exegroupingmanagement.entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Nationalized;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import swd.fpt.exegroupingmanagement.enums.CourseStatus;
@@ -25,6 +16,7 @@ import swd.fpt.exegroupingmanagement.enums.CourseStatus;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
+@Table(name = "course")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseEntity extends BaseEntity {
     

@@ -2,6 +2,7 @@ package swd.fpt.exegroupingmanagement.service.impl;
 
 import java.util.List;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceNotFoundExcept
 import swd.fpt.exegroupingmanagement.mapper.MajorMapper;
 import swd.fpt.exegroupingmanagement.repository.MajorRepository;
 import swd.fpt.exegroupingmanagement.service.MajorService;
+import swd.fpt.exegroupingmanagement.specification.MajorSpecification;
 
 @Service
 @RequiredArgsConstructor
@@ -79,7 +81,15 @@ public class MajorServiceImpl implements MajorService {
     public void delete(Long id) {
         MajorEntity entity = majorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy chuyên ngành"));
-        majorRepository.delete(entity);
+        entity.setDeleted(true);
+        majorRepository.save(entity);
+    }
+
+    @Override
+    public List<MajorResponse> searchMajors(String keyword) {
+        Specification<MajorEntity> spec = MajorSpecification.hasKeyword(keyword);
+        List<MajorEntity> entities = majorRepository.findAll(spec);
+        return majorMapper.toResponseList(entities);
     }
 }
 

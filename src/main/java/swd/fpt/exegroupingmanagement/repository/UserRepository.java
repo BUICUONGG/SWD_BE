@@ -9,10 +9,5 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpecificationExecutor<UserEntity> {
     Optional<UserEntity> findByEmail(String email);
-
-//    Optional<UserEntity> findByEmailAndDeletedFalse(String email);
-
     boolean existsByEmail(String email);
-
-//    List<UserEntity> findByFullNameContainingIgnoreCaseAndDeletedFalse(String fullName);
 }

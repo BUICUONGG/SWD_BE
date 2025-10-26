@@ -2,6 +2,7 @@ package swd.fpt.exegroupingmanagement.service.impl;
 
 import java.util.List;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import swd.fpt.exegroupingmanagement.mapper.MentorProfileMapper;
 import swd.fpt.exegroupingmanagement.repository.MentorProfileRepository;
 import swd.fpt.exegroupingmanagement.repository.UserRepository;
 import swd.fpt.exegroupingmanagement.service.MentorProfileService;
+import swd.fpt.exegroupingmanagement.specification.MentorProfileSpecification;
 
 @Service
 @RequiredArgsConstructor
@@ -30,19 +32,12 @@ public class MentorProfileServiceImpl implements MentorProfileService {
     @Override
     @Transactional
     public MentorProfileResponse create(MentorProfileRequest request) {
-        if (mentorProfileRepository.existsByEmployeeCode(request.getEmployeeCode())) {
-            throw new ResourceConflictException("Mã giảng viên đã tồn tại");
-        }
-        
+
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
         
         MentorProfileEntity entity = mentorProfileMapper.toEntity(request);
         entity.setUser(user);
-        
-        if (entity.getMaxCoursesPerSemester() == null) {
-            entity.setMaxCoursesPerSemester(3);
-        }
         
         MentorProfileEntity saved = mentorProfileRepository.save(entity);
         return mentorProfileMapper.toResponse(saved);
@@ -62,12 +57,6 @@ public class MentorProfileServiceImpl implements MentorProfileService {
         return mentorProfileMapper.toResponse(entity);
     }
 
-    @Override
-    public MentorProfileResponse getByEmployeeCode(String employeeCode) {
-        MentorProfileEntity entity = mentorProfileRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hồ sơ giảng viên"));
-        return mentorProfileMapper.toResponse(entity);
-    }
 
     @Override
     public List<MentorProfileResponse> getAll() {
@@ -80,11 +69,6 @@ public class MentorProfileServiceImpl implements MentorProfileService {
     public MentorProfileResponse update(Long id, MentorProfileRequest request) {
         MentorProfileEntity entity = mentorProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hồ sơ giảng viên"));
-        
-        if (!entity.getEmployeeCode().equals(request.getEmployeeCode()) && 
-            mentorProfileRepository.existsByEmployeeCode(request.getEmployeeCode())) {
-            throw new ResourceConflictException("Mã giảng viên đã tồn tại");
-        }
         
         mentorProfileMapper.updateEntity(entity, request);
         
@@ -103,7 +87,15 @@ public class MentorProfileServiceImpl implements MentorProfileService {
     public void delete(Long id) {
         MentorProfileEntity entity = mentorProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hồ sơ giảng viên"));
-        mentorProfileRepository.delete(entity);
+        entity.setDeleted(true);
+        mentorProfileRepository.save(entity);
+    }
+
+    @Override
+    public List<MentorProfileResponse> searchProfiles(String keyword) {
+        Specification<MentorProfileEntity> spec = MentorProfileSpecification.hasKeyword(keyword);
+        List<MentorProfileEntity> entities = mentorProfileRepository.findAll(spec);
+        return mentorProfileMapper.toResponseList(entities);
     }
 }
 

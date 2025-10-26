@@ -2,15 +2,9 @@ package swd.fpt.exegroupingmanagement.entity;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.Nationalized;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +21,7 @@ import swd.fpt.exegroupingmanagement.enums.SemesterTerm;
 @NoArgsConstructor
 @SuperBuilder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name="semester")
 public class SemesterEntity extends BaseEntity {
     
     @Id

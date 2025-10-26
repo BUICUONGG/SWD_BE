@@ -2,6 +2,7 @@ package swd.fpt.exegroupingmanagement.service.impl;
 
 import java.util.List;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceNotFoundExcept
 import swd.fpt.exegroupingmanagement.mapper.SubjectMapper;
 import swd.fpt.exegroupingmanagement.repository.SubjectRepository;
 import swd.fpt.exegroupingmanagement.service.SubjectService;
+import swd.fpt.exegroupingmanagement.specification.SubjectSpecification;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +78,15 @@ public class SubjectServiceImpl implements SubjectService {
     public void delete(Long id) {
         SubjectEntity entity = subjectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy môn học"));
-        subjectRepository.delete(entity);
+        entity.setDeleted(true);
+        subjectRepository.save(entity);
+    }
+
+    @Override
+    public List<SubjectResponse> searchSubjects(String keyword) {
+        Specification<SubjectEntity> spec = SubjectSpecification.hasKeyword(keyword);
+        List<SubjectEntity> entities = subjectRepository.findAll(spec);
+        return subjectMapper.toResponseList(entities);
     }
 }
 

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CourseResponse extends ResponseAbstract {
+public class CourseResponse  {
     Long courseId;
     String code;
     String name;
@@ -25,8 +25,6 @@ public class CourseResponse extends ResponseAbstract {
     String mentorName;
     Long subjectId;
     String subjectCode;
-    String subjectName;
     Long semesterId;
     String semesterCode;
-    String semesterName;
 }

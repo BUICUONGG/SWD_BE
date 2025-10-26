@@ -116,7 +116,24 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         CourseEntity course = entity.getCourse();
         course.setCurrentStudents(Math.max(0, course.getCurrentStudents() - 1));
         courseRepository.save(course);
-        enrollmentRepository.delete(entity);
+        
+        entity.setDeleted(true);
+        enrollmentRepository.save(entity);
+    }
+
+    @Override
+    public List<EnrollmentResponse> searchEnrollments(Long userId, Long courseId) {
+        if (userId != null && courseId != null) {
+            // Search by both
+            return getByUser(userId).stream()
+                    .filter(e -> e.getCourseId().equals(courseId))
+                    .toList();
+        } else if (userId != null) {
+            return getByUser(userId);
+        } else if (courseId != null) {
+            return getByCourse(courseId);
+        }
+        return List.of();
     }
 }
 

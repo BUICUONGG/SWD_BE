@@ -3,6 +3,7 @@ package swd.fpt.exegroupingmanagement.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -20,8 +21,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import swd.fpt.exegroupingmanagement.dto.request.EnrollmentRequest;
-import swd.fpt.exegroupingmanagement.dto.response.ApiResponse;
 import swd.fpt.exegroupingmanagement.dto.response.EnrollmentResponse;
+import swd.fpt.exegroupingmanagement.dto.response.StandardResponse;
+import static swd.fpt.exegroupingmanagement.dto.response.StandardResponse.success;
 import swd.fpt.exegroupingmanagement.service.EnrollmentService;
 
 @RestController
@@ -34,71 +36,66 @@ public class EnrollmentController {
 
     @PostMapping
     @Operation(summary = "Enroll a student in a course")
-    public ApiResponse<EnrollmentResponse> enroll(@Valid @RequestBody EnrollmentRequest request) {
-        return ApiResponse.<EnrollmentResponse>builder()
-                .code(HttpStatus.CREATED.value())
-                .message("Đăng ký lớp thành công")
-                .result(enrollmentService.enroll(request))
-                .build();
+    public ResponseEntity<StandardResponse<Object>> enroll(@Valid @RequestBody EnrollmentRequest request) {
+        EnrollmentResponse result = enrollmentService.enroll(request);
+        return ResponseEntity.ok(success("Đăng ký lớp thành công", result));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get enrollment by ID")
-    public ApiResponse<EnrollmentResponse> getById(@PathVariable Long id) {
-        return ApiResponse.<EnrollmentResponse>builder()
-                .code(HttpStatus.OK.value())
-                .result(enrollmentService.getById(id))
-                .build();
+    public ResponseEntity<StandardResponse<Object>> getById(@PathVariable Long id) {
+        EnrollmentResponse result = enrollmentService.getById(id);
+        return ResponseEntity.ok(success("Lấy thông tin đăng ký thành công", result));
     }
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get enrollments by user")
-    public ApiResponse<List<EnrollmentResponse>> getByUser(@PathVariable Long userId) {
-        return ApiResponse.<List<EnrollmentResponse>>builder()
-                .code(HttpStatus.OK.value())
-                .result(enrollmentService.getByUser(userId))
-                .build();
+    public ResponseEntity<StandardResponse<Object>> getByUser(@PathVariable Long userId) {
+        List<EnrollmentResponse> result = enrollmentService.getByUser(userId);
+        return ResponseEntity.ok(success("Lấy danh sách đăng ký theo người dùng thành công", result));
     }
 
     @GetMapping("/course/{courseId}")
     @Operation(summary = "Get enrollments by course")
-    public ApiResponse<List<EnrollmentResponse>> getByCourse(@PathVariable Long courseId) {
-        return ApiResponse.<List<EnrollmentResponse>>builder()
-                .code(HttpStatus.OK.value())
-                .result(enrollmentService.getByCourse(courseId))
-                .build();
+    public ResponseEntity<StandardResponse<Object>> getByCourse(@PathVariable Long courseId) {
+        List<EnrollmentResponse> result = enrollmentService.getByCourse(courseId);
+        return ResponseEntity.ok(success("Lấy danh sách đăng ký theo lớp học thành công", result));
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search enrollments", 
+               description = "Search enrollments by userId, courseId, or both")
+    public ResponseEntity<StandardResponse<Object>> search(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) Long courseId) {
+        
+        List<EnrollmentResponse> result = enrollmentService.searchEnrollments(userId, courseId);
+        return ResponseEntity.ok(success(
+                "Tìm kiếm đăng ký thành công (tìm thấy " + result.size() + " kết quả)", 
+                result));
     }
 
     @PatchMapping("/{id}/approve")
     @Operation(summary = "Approve enrollment")
-    public ApiResponse<EnrollmentResponse> approve(
+    public ResponseEntity<StandardResponse<Object>> approve(
             @PathVariable Long id,
             @RequestParam Long approvedBy) {
-        return ApiResponse.<EnrollmentResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message("Phê duyệt đăng ký thành công")
-                .result(enrollmentService.approveEnrollment(id, approvedBy))
-                .build();
+        EnrollmentResponse result = enrollmentService.approveEnrollment(id, approvedBy);
+        return ResponseEntity.ok(success("Phê duyệt đăng ký thành công", result));
     }
 
     @PatchMapping("/{id}/complete")
     @Operation(summary = "Complete enrollment")
-    public ApiResponse<EnrollmentResponse> complete(@PathVariable Long id) {
-        return ApiResponse.<EnrollmentResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message("Hoàn thành đăng ký")
-                .result(enrollmentService.completeEnrollment(id))
-                .build();
+    public ResponseEntity<StandardResponse<Object>> complete(@PathVariable Long id) {
+        EnrollmentResponse result = enrollmentService.completeEnrollment(id);
+        return ResponseEntity.ok(success("Hoàn thành đăng ký", result));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete enrollment")
-    public ApiResponse<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<StandardResponse<String>> delete(@PathVariable Long id) {
         enrollmentService.delete(id);
-        return ApiResponse.<Void>builder()
-                .code(HttpStatus.OK.value())
-                .message("Hủy đăng ký thành công")
-                .build();
+        return ResponseEntity.ok(success("Hủy đăng ký thành công"));
     }
 }
 

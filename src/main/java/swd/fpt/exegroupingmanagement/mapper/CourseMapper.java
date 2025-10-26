@@ -19,10 +19,8 @@ public interface CourseMapper {
     @Mapping(target = "mentorName", source = "mentor.fullName")
     @Mapping(target = "subjectId", source = "subject.subjectId")
     @Mapping(target = "subjectCode", source = "subject.code")
-    @Mapping(target = "subjectName", source = "subject.name")
     @Mapping(target = "semesterId", source = "semester.semesterId")
     @Mapping(target = "semesterCode", source = "semester.code")
-    @Mapping(target = "semesterName", source = "semester.name")
     CourseResponse toResponse(CourseEntity entity);
     
     List<CourseResponse> toResponseList(List<CourseEntity> entities);

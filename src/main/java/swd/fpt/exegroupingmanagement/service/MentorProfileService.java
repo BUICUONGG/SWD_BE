@@ -9,9 +9,11 @@ public interface MentorProfileService {
     MentorProfileResponse create(MentorProfileRequest request);
     MentorProfileResponse getById(Long id);
     MentorProfileResponse getByUserId(Long userId);
-    MentorProfileResponse getByEmployeeCode(String employeeCode);
     List<MentorProfileResponse> getAll();
     MentorProfileResponse update(Long id, MentorProfileRequest request);
     void delete(Long id);
+    
+    // Search method
+    List<MentorProfileResponse> searchProfiles(String keyword);
 }
 

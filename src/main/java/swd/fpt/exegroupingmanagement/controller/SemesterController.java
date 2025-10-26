@@ -3,6 +3,7 @@ package swd.fpt.exegroupingmanagement.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,8 +20,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import swd.fpt.exegroupingmanagement.dto.request.SemesterRequest;
-import swd.fpt.exegroupingmanagement.dto.response.ApiResponse;
 import swd.fpt.exegroupingmanagement.dto.response.SemesterResponse;
+import swd.fpt.exegroupingmanagement.dto.response.StandardResponse;
+import static swd.fpt.exegroupingmanagement.dto.response.StandardResponse.success;
 import swd.fpt.exegroupingmanagement.service.SemesterService;
 
 @RestController
@@ -33,61 +35,46 @@ public class SemesterController {
 
     @PostMapping
     @Operation(summary = "Create a new semester")
-    public ApiResponse<SemesterResponse> create(@Valid @RequestBody SemesterRequest request) {
-        return ApiResponse.<SemesterResponse>builder()
-                .code(HttpStatus.CREATED.value())
-                .message("Tạo kỳ học thành công")
-                .result(semesterService.create(request))
-                .build();
+    public ResponseEntity<StandardResponse<Object>> create(@Valid @RequestBody SemesterRequest request) {
+        SemesterResponse result = semesterService.create(request);
+        return ResponseEntity.ok(success("Tạo kỳ học thành công", result));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get semester by ID")
-    public ApiResponse<SemesterResponse> getById(@PathVariable Long id) {
-        return ApiResponse.<SemesterResponse>builder()
-                .code(HttpStatus.OK.value())
-                .result(semesterService.getById(id))
-                .build();
+    public ResponseEntity<StandardResponse<Object>> getById(@PathVariable Long id) {
+        SemesterResponse result = semesterService.getById(id);
+        return ResponseEntity.ok(success("Lấy thông tin kỳ học thành công", result));
     }
 
     @GetMapping("/code/{code}")
     @Operation(summary = "Get semester by code")
-    public ApiResponse<SemesterResponse> getByCode(@PathVariable String code) {
-        return ApiResponse.<SemesterResponse>builder()
-                .code(HttpStatus.OK.value())
-                .result(semesterService.getByCode(code))
-                .build();
+    public ResponseEntity<StandardResponse<Object>> getByCode(@PathVariable String code) {
+        SemesterResponse result = semesterService.getByCode(code);
+        return ResponseEntity.ok(success("Lấy thông tin kỳ học thành công", result));
     }
 
     @GetMapping
     @Operation(summary = "Get all semesters")
-    public ApiResponse<List<SemesterResponse>> getAll() {
-        return ApiResponse.<List<SemesterResponse>>builder()
-                .code(HttpStatus.OK.value())
-                .result(semesterService.getAll())
-                .build();
+    public ResponseEntity<StandardResponse<Object>> getAll() {
+        List<SemesterResponse> result = semesterService.getAll();
+        return ResponseEntity.ok(success("Lấy danh sách kỳ học thành công", result));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update semester")
-    public ApiResponse<SemesterResponse> update(
+    public ResponseEntity<StandardResponse<Object>> update(
             @PathVariable Long id,
             @Valid @RequestBody SemesterRequest request) {
-        return ApiResponse.<SemesterResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message("Cập nhật kỳ học thành công")
-                .result(semesterService.update(id, request))
-                .build();
+        SemesterResponse result = semesterService.update(id, request);
+        return ResponseEntity.ok(success("Cập nhật kỳ học thành công", result));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete semester")
-    public ApiResponse<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<StandardResponse<String>> delete(@PathVariable Long id) {
         semesterService.delete(id);
-        return ApiResponse.<Void>builder()
-                .code(HttpStatus.OK.value())
-                .message("Xóa kỳ học thành công")
-                .build();
+        return ResponseEntity.ok(success("Xóa kỳ học thành công"));
     }
 }
 

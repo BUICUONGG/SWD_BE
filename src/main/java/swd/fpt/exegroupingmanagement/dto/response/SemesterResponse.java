@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SemesterResponse extends ResponseAbstract {
+public class SemesterResponse{
     Long semesterId;
     String code;
     String name;

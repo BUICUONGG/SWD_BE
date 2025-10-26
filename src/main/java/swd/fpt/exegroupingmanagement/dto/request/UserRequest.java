@@ -1,14 +1,15 @@
 package swd.fpt.exegroupingmanagement.dto.request;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import swd.fpt.exegroupingmanagement.enums.Gender;
+import swd.fpt.exegroupingmanagement.enums.UserStatus;
 
-@Getter
-@Setter
+@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserRequest {
     @NotBlank(message = "Họ và tên không được để trống")
@@ -20,7 +21,15 @@ public class UserRequest {
     String email;
 
     @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 8, message = "Mật khẩu phải có ít nhất 8 ký tự")
-    String passwordHash;
-
+    @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự")
+    String password;
+    
+    @NotNull(message = "Role không được để trống")
+    Long roleId;
+    
+    Gender gender;
+    
+    LocalDate dob;
+    
+    UserStatus status;
 }

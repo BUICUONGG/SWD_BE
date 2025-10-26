@@ -14,5 +14,4 @@ public interface UserMapper {
     List<UserResponse> toEntityDTO(List<UserEntity> userEntities);
 
 
-
 }

@@ -16,4 +16,7 @@ public interface CourseService {
     List<CourseResponse> getByMentor(Long mentorId);
     CourseResponse update(Long id, CourseRequest request);
     void delete(Long id);
+    
+    // Search method
+    List<CourseResponse> searchCourses(String keyword, CourseStatus status, Long semesterId, Long mentorId, Long subjectId);
 }

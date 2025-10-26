@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class EnrollmentResponse extends ResponseAbstract {
+public class EnrollmentResponse {
     Long enrollmentId;
     LocalDateTime enrollmentDate;
     Long approvedBy;

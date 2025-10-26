@@ -19,6 +19,7 @@ import java.time.LocalDate;
 public class RegisterRequest {
     @NotBlank(message = "Email must not be blank")
     @Email(message = "Email format is invalid")
+    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@fpt\\.edu\\.vn$", message = "Email must end with @fpt.edu.vn")
     String email;
 
     @NotBlank(message = "Full name must not be blank")

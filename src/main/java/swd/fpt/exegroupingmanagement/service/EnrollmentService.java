@@ -13,5 +13,8 @@ public interface EnrollmentService {
     EnrollmentResponse approveEnrollment(Long id, Long approvedBy);
     EnrollmentResponse completeEnrollment(Long id);
     void delete(Long id);
+    
+    // Search method
+    List<EnrollmentResponse> searchEnrollments(Long userId, Long courseId);
 }
 

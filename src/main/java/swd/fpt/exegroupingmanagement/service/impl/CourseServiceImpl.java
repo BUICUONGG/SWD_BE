@@ -2,6 +2,7 @@ package swd.fpt.exegroupingmanagement.service.impl;
 
 import java.util.List;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import swd.fpt.exegroupingmanagement.repository.SemesterRepository;
 import swd.fpt.exegroupingmanagement.repository.SubjectRepository;
 import swd.fpt.exegroupingmanagement.repository.UserRepository;
 import swd.fpt.exegroupingmanagement.service.CourseService;
+import swd.fpt.exegroupingmanagement.specification.CourseSpecification;
 
 @Service
 @RequiredArgsConstructor
@@ -151,6 +153,32 @@ public class CourseServiceImpl implements CourseService {
     public void delete(Long id) {
         CourseEntity entity = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lớp"));
-        courseRepository.delete(entity);
+        entity.setDeleted(true);
+        courseRepository.save(entity);
+    }
+
+    @Override
+    public List<CourseResponse> searchCourses(String keyword, CourseStatus status, 
+                                              Long semesterId, Long mentorId, Long subjectId) {
+        Specification<CourseEntity> spec = Specification.where(null);
+        
+        if (keyword != null && !keyword.isEmpty()) {
+            spec = spec.and(CourseSpecification.hasKeyword(keyword));
+        }
+        if (status != null) {
+            spec = spec.and(CourseSpecification.hasStatus(status));
+        }
+        if (semesterId != null) {
+            spec = spec.and(CourseSpecification.hasSemesterId(semesterId));
+        }
+        if (mentorId != null) {
+            spec = spec.and(CourseSpecification.hasMentorId(mentorId));
+        }
+        if (subjectId != null) {
+            spec = spec.and(CourseSpecification.hasSubjectId(subjectId));
+        }
+        
+        List<CourseEntity> entities = courseRepository.findAll(spec);
+        return courseMapper.toResponseList(entities);
     }
 }

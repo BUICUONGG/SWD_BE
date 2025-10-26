@@ -12,5 +12,8 @@ public interface MajorService {
     List<MajorResponse> getAll();
     MajorResponse update(Long id, MajorRequest request);
     void delete(Long id);
+    
+    // Search method
+    List<MajorResponse> searchMajors(String keyword);
 }
 

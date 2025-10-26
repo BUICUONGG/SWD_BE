@@ -8,10 +8,9 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MentorProfileResponse extends ResponseAbstract {
+public class MentorProfileResponse{
     Long mentorProfileId;
-    String employeeCode;
-    Integer maxCoursesPerSemester;
+    String shortName;
     
     // Related user info
     Long userId;

@@ -13,6 +13,8 @@ import org.hibernate.annotations.Nationalized;
 @NoArgsConstructor
 @SuperBuilder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "major")
+
 public class MajorEntity extends BaseEntity {
     
     @Id

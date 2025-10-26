@@ -1,6 +1,7 @@
 package swd.fpt.exegroupingmanagement.enums;
 
 public enum CourseStatus {
+    UPCOMING,       // Sắp mở
     OPEN,           // Mở đăng ký
     IN_PROGRESS,    // Đang học
     COMPLETED,      // Đã hoàn thành

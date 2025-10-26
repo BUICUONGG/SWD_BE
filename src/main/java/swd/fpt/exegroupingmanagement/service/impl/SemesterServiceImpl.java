@@ -76,7 +76,8 @@ public class SemesterServiceImpl implements SemesterService {
     public void delete(Long id) {
         SemesterEntity entity = semesterRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy kỳ học"));
-        semesterRepository.delete(entity);
+        entity.setDeleted(true);
+        semesterRepository.save(entity);
     }
 }
 
