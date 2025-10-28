@@ -33,3 +33,8 @@ build/
 .vscode/
 /.env
 .history/
+
+
+src/main/resources/firebase-service-account.json
+firebase-service-account.json
+**/firebase-service-account*.json

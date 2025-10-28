@@ -2,8 +2,8 @@ package swd.fpt.exegroupingmanagement.controller;
 
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,9 +22,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import swd.fpt.exegroupingmanagement.dto.request.UserRequest;
+import swd.fpt.exegroupingmanagement.dto.response.ImportResultResponse;
 import swd.fpt.exegroupingmanagement.dto.response.StandardResponse;
 import static swd.fpt.exegroupingmanagement.dto.response.StandardResponse.success;
 import swd.fpt.exegroupingmanagement.dto.response.UserResponse;
+import swd.fpt.exegroupingmanagement.service.ExcelImportService;
 import swd.fpt.exegroupingmanagement.service.UserService;
 
 @RestController
@@ -33,6 +36,7 @@ import swd.fpt.exegroupingmanagement.service.UserService;
 @Tag(name = "User Management", description = "APIs for managing users")
 public class UserController {
     UserService userService;
+    ExcelImportService excelImportService;
 
     @PostMapping
     @Operation(summary = "Create new user (Admin only)")
@@ -86,6 +90,37 @@ public class UserController {
     public ResponseEntity<StandardResponse<String>> restoreUser(@PathVariable Long id) {
         userService.restoreUser(id);
         return ResponseEntity.ok(success("Khôi phục người dùng thành công"));
+    }
+
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Import students from Excel file (Admin only)",
+               description = "Upload Excel file (.xlsx) with columns: Email | Full Name | Password | Gender | Date of Birth")
+    public ResponseEntity<StandardResponse<Object>> importStudents(
+            @RequestParam("file") MultipartFile file) {
+        
+        // Validate file
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(StandardResponse.error("File không được để trống"));
+        }
+        
+        // Validate file extension
+        String filename = file.getOriginalFilename();
+        if (filename == null || !filename.endsWith(".xlsx")) {
+            return ResponseEntity.badRequest()
+                    .body(StandardResponse.error("File phải có định dạng .xlsx"));
+        }
+        
+        ImportResultResponse result = excelImportService.importStudents(file);
+        
+        String message = String.format(
+            "Import hoàn tất: %d/%d thành công, %d thất bại",
+            result.getSuccessCount(), 
+            result.getTotalRows(), 
+            result.getFailureCount()
+        );
+        
+        return ResponseEntity.ok(success(message, result));
     }
 }
 
