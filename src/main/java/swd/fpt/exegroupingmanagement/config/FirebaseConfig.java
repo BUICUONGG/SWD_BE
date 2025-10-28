@@ -1,7 +1,9 @@
 package swd.fpt.exegroupingmanagement.config;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,14 +22,22 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseApp initializeFirebaseApp() throws IOException {
-        // Đọc file service account JSON từ resources folder
-        // File này được download từ Firebase Console
-        ClassPathResource resource = new ClassPathResource("firebase-service-account.json");
-        if (!resource.exists()) {
-            throw new IOException("Firebase service account file not found");
+        InputStream serviceAccount = null;
+        
+        String firebaseKeyJson = System.getenv("FIREBASE_SERVICE_ACCOUNT_JSON");
+        if (firebaseKeyJson != null && !firebaseKeyJson.isEmpty()) {
+            serviceAccount = new ByteArrayInputStream(
+                firebaseKeyJson.getBytes(StandardCharsets.UTF_8)
+            );
+        } 
+        //Load từ classpath (default cho local development)
+        else {
+                ClassPathResource resource = new ClassPathResource("firebase-service-account.json");
+                if (!resource.exists()) {
+                    throw new IOException("Firebase service account file not found in classpath.");
+                }
+                serviceAccount = resource.getInputStream();
         }
-
-        InputStream serviceAccount = resource.getInputStream();
 
         // Tạo FirebaseOptions với credentials
         FirebaseOptions options = FirebaseOptions.builder()
