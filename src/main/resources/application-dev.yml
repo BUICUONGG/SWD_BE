@@ -16,8 +16,8 @@ spring:
           time_zone: UTC
   data:
     redis:
-      port: 6379
-      host: localhost
+      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST:localhost}
       password: ${REDIS_PASSWORD}
 open:
   api:
