@@ -1,8 +1,13 @@
 package swd.fpt.exegroupingmanagement.entity;
 
-import jakarta.persistence.*;
 import org.hibernate.annotations.Nationalized;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,7 +38,7 @@ public class SubjectEntity extends BaseEntity {
     @Nationalized
     String name; // "Software Engineering"
 
-    @Column(name = "prerequisite_codes", columnDefinition = "TEXT")
+    @Column(name = "prerequisite_codes", length = 200)
     String prerequisiteCodes; // "SWE201a,SWE201b"
    
 }
