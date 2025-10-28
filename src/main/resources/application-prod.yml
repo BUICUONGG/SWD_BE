@@ -6,18 +6,21 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
         jdbc:
           time_zone: UTC
+        globally_quoted_identifiers: true
   data:
     redis:
-      port: 6379
-      host: localhost
+      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST:localhost}
+
 open:
   api:
     title: API Document
@@ -30,11 +33,13 @@ jwt:
   secret-key: ${JWT_SECRET_KEY}
   valid-duration: 300
   refreshable-duration: 1800
+
 outbound:
   identity:
     client-id: ${OUTBOUND_IDENTITY_CLIENT_ID}
     client-secret: ${OUTBOUND_IDENTITY_CLIENT_SECRET}
     redirect-uri: ${OUTBOUND_IDENTITY_REDIRECT_URI}
+
 management:
   endpoint:
     web:
