@@ -25,10 +25,6 @@ public class RoleEntity extends BaseEntity{
     @Nationalized
     String roleName;
 
-    @ManyToMany
-    @JoinTable(name ="role_permission",
-            joinColumns = @JoinColumn(name="role_id"),
-            inverseJoinColumns = @JoinColumn(name ="permission_id"))
-    Set<PermissionEntity> permissions;
-
+    @OneToMany(mappedBy = "role")
+    Set<UserEntity> users;
 }

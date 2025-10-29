@@ -1,27 +1,31 @@
 package swd.fpt.exegroupingmanagement.service.impl;
 
-import com.nimbusds.jose.*;
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import lombok.experimental.NonFinal;
-import swd.fpt.exegroupingmanagement.entity.PermissionEntity;
-import swd.fpt.exegroupingmanagement.entity.RoleEntity;
 import swd.fpt.exegroupingmanagement.entity.UserEntity;
 import swd.fpt.exegroupingmanagement.exception.ErrorCode;
 import swd.fpt.exegroupingmanagement.exception.exceptions.UnauthorizedException;
 import swd.fpt.exegroupingmanagement.service.JwtService;
 import swd.fpt.exegroupingmanagement.service.RedisService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class JwtServiceImpl implements JwtService {
@@ -74,6 +78,7 @@ public class JwtServiceImpl implements JwtService {
                 .expirationTime(new Date(Instant.now()
                         .plus(refreshableDuration, ChronoUnit.SECONDS)
                         .toEpochMilli()))
+                .claim("scope",buildScope(user))
                 .jwtID(UUID.randomUUID().toString())
                 .build();
 
@@ -89,8 +94,8 @@ public class JwtServiceImpl implements JwtService {
                 .expirationTime(new Date(Instant.now()
                         .plus(validDuration, ChronoUnit.SECONDS)
                         .toEpochMilli()))
+                .claim("scope", buildScope(user))
                 .jwtID(UUID.randomUUID().toString());
-        buildClaims(user).forEach(claimsBuilder::claim);
         return signToken(claimsBuilder.build());
     }
 
@@ -113,28 +118,6 @@ public class JwtServiceImpl implements JwtService {
         return signedJWT;
     }
 
-
-    public Map<String, Object> buildClaims(UserEntity user) {
-        Map<String, Object> claims = new HashMap<>();
-        // Build roles
-        List<String> roles = CollectionUtils.isEmpty(user.getRoles())
-                ? List.of()
-                : user.getRoles().stream()
-                .map(RoleEntity::getRoleName)
-                .toList();
-        claims.put("roles", roles);
-        // Build permissions
-        Set<String> permissions = CollectionUtils.isEmpty(user.getRoles())
-                ? Set.of()
-                : user.getRoles().stream()
-                .flatMap(role -> Optional.ofNullable(role.getPermissions())
-                        .filter(perms -> !perms.isEmpty()).stream().flatMap(Collection::stream))
-                .map(PermissionEntity::getPermissionName)
-                .collect(Collectors.toSet());
-        claims.put("permissions", permissions);
-
-        return claims;
-    }
     @Override
     public String signToken(JWTClaimsSet claims) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
@@ -146,5 +129,11 @@ public class JwtServiceImpl implements JwtService {
         } catch (JOSEException e) {
             throw new IllegalStateException("Cannot create JWT", e);
         }
+    }
+    private String buildScope(UserEntity user) {
+        if (user.getRole() != null) {
+            return user.getRole().getRoleName();
+        }
+        return "";
     }
 }

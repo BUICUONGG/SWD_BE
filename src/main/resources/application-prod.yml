@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+        globally_quoted_identifiers: true
+  data:
+    redis:
+      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST:localhost}
+      password: ${REDIS_PASSWORD}
+
+open:
+  api:
+    title: API Document
+    version: v1.0.0
+    description: EXE course Grouping Management System for FPT Campus API Service
+    serverUrl: ${OPENAPI_SERVER_URL}
+    serverName: ${OPENAPI_SERVER_NAME}
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  valid-duration: 300
+  refreshable-duration: 1800
+
+outbound:
+  identity:
+    client-id: ${OUTBOUND_IDENTITY_CLIENT_ID}
+    client-secret: ${OUTBOUND_IDENTITY_CLIENT_SECRET}
+    redirect-uri: ${OUTBOUND_IDENTITY_REDIRECT_URI}
+
+management:
+  endpoint:
+    web:
+      exposure:
+        include: "*"

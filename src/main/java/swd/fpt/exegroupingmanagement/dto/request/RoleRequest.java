@@ -12,12 +12,4 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RoleRequest {
     String roleName;
-    Set<Long> permissions;
-    @Getter
-    @Setter
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class RoleUpdatePermissionsRequest {
-        long roleId;
-        long permissionId;
-    }
 }
