@@ -1,8 +1,9 @@
 package swd.fpt.exegroupingmanagement.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
@@ -10,27 +11,26 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "course", schema = "exegrouping")
-public class Course {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@SuperBuilder
+public class Course extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "course_id", nullable = false)
-    private Long id;
+    Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn(name = "subject_id")
+    Subject subject;
+
+    @ManyToOne
+    @JoinColumn(name = "semester_id")
+    Semester semester;
+
+    @ManyToOne
     @JoinColumn(name = "mentor_id")
-    private UserEntity mentor;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at")
-    private Instant updatedAt;
-
-    @ColumnDefault("0")
-    @Column(name = "is_deleted")
-    private Boolean isDeleted;
-
+    UserEntity mentor;
 }

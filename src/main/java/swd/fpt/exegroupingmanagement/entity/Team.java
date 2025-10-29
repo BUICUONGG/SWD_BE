@@ -2,48 +2,42 @@ package swd.fpt.exegroupingmanagement.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
+import swd.fpt.exegroupingmanagement.enums.TeamStatus;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@SuperBuilder
 @Table(name = "team", schema = "exegrouping")
-public class Team {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Team extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_id", nullable = false)
-    private Long id;
+    Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "course_id")
-    private Course course;
+    Course course;
 
     @Lob
     @Column(name = "description")
-    private String description;
+    String description;
 
-    @Size(max = 50)
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
     @Column(name = "status", length = 50)
-    private String status;
+    TeamStatus status = TeamStatus.PENDING;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "idea_id")
-    private Idea idea;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at")
-    private Instant updatedAt;
-
-    @ColumnDefault("0")
-    @Column(name = "is_deleted")
-    private Boolean isDeleted;
-
+    Idea idea;
 }
