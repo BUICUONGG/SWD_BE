@@ -44,16 +44,18 @@ public class RedisConfig {
         builder.commandTimeout(Duration.ofSeconds(10));
         
         if (useSsl) {
-            // Configure SSL for Railway Redis
+            // Configure SSL for Railway Redis - disable hostname verification
             SslOptions sslOptions = SslOptions.builder()
+                .jdkSslProvider()
                 .build();
             
             ClientOptions clientOptions = ClientOptions.builder()
                 .sslOptions(sslOptions)
                 .build();
             
-            builder.clientOptions(clientOptions);
-            builder.useSsl();
+            builder.clientOptions(clientOptions)
+                   .useSsl()
+                   .disablePeerVerification();  // Important for Railway Redis
         }
 
         LettuceClientConfiguration clientConfig = builder.build();
