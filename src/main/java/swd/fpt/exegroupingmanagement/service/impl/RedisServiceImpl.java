@@ -21,8 +21,8 @@ public class RedisServiceImpl implements RedisService {
         try {
             redisTemplate.opsForValue().set(key, value);
         } catch (Exception e) {
-            log.error("Unable to connect to Redis: {}", e.getMessage());
-            throw new RuntimeException("Unable to connect to Redis", e);
+            log.error("Unable to connect to Redis - Error: {}, Cause: {}", e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "N/A", e);
+            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
         }
     }
 
@@ -31,8 +31,8 @@ public class RedisServiceImpl implements RedisService {
         try {
             redisTemplate.opsForValue().set(key, value, duration, timeUnit);
         } catch (Exception e) {
-            log.error("Unable to connect to Redis: {}", e.getMessage());
-            throw new RuntimeException("Unable to connect to Redis", e);
+            log.error("Unable to connect to Redis - Error: {}, Cause: {}", e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "N/A", e);
+            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
         }
     }
 
@@ -41,8 +41,8 @@ public class RedisServiceImpl implements RedisService {
         try {
             return (String) redisTemplate.opsForValue().get(key);
         } catch (Exception e) {
-            log.error("Unable to connect to Redis: {}", e.getMessage());
-            throw new RuntimeException("Unable to connect to Redis", e);
+            log.error("Unable to connect to Redis - Error: {}, Cause: {}", e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "N/A", e);
+            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
         }
     }
 
@@ -51,8 +51,8 @@ public class RedisServiceImpl implements RedisService {
         try {
             redisTemplate.delete(key);
         } catch (Exception e) {
-            log.error("Unable to connect to Redis: {}", e.getMessage());
-            throw new RuntimeException("Unable to connect to Redis", e);
+            log.error("Unable to connect to Redis - Error: {}, Cause: {}", e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "N/A", e);
+            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
         }
     }
 
@@ -61,8 +61,8 @@ public class RedisServiceImpl implements RedisService {
         try {
             return redisTemplate.hasKey(key);
         } catch (Exception e) {
-            log.error("Unable to connect to Redis: {}", e.getMessage());
-            throw new RuntimeException("Unable to connect to Redis", e);
+            log.error("Unable to connect to Redis - Error: {}, Cause: {}", e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "N/A", e);
+            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
         }
     }
 }
