@@ -19,6 +19,8 @@ spring:
       port: ${REDIS_PORT:6379}
       host: ${REDIS_HOST:localhost}
       password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: ${REDIS_SSL:false}
 open:
   api:
     title: API Document
