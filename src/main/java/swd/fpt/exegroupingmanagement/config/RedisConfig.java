@@ -7,13 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import redis.clients.jedis.JedisPoolConfig;
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.SslOptions;
 
 @Configuration
 public class RedisConfig {
@@ -31,40 +32,40 @@ public class RedisConfig {
     private boolean useSsl;
 
     @Bean
-    JedisConnectionFactory jedisConnectionFactory() {
+    LettuceConnectionFactory lettuceConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(host);
         redisStandaloneConfiguration.setPort(port);
         redisStandaloneConfiguration.setPassword(password);
 
-        JedisPoolConfig poolConfig = new JedisPoolConfig();
-        poolConfig.setMaxTotal(10);
-        poolConfig.setMaxIdle(5);
-        poolConfig.setMinIdle(1);
-        poolConfig.setTestOnBorrow(true);
-        poolConfig.setTestOnReturn(true);
-        poolConfig.setTestWhileIdle(true);
-
-        JedisClientConfiguration.JedisClientConfigurationBuilder builder = 
-            JedisClientConfiguration.builder();
-        builder.connectTimeout(Duration.ofSeconds(60));
-        builder.readTimeout(Duration.ofSeconds(60));
-        builder.usePooling().poolConfig(poolConfig);
-
+        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder = 
+            LettuceClientConfiguration.builder();
+        
+        builder.commandTimeout(Duration.ofSeconds(10));
+        
         if (useSsl) {
+            // Configure SSL for Railway Redis
+            SslOptions sslOptions = SslOptions.builder()
+                .build();
+            
+            ClientOptions clientOptions = ClientOptions.builder()
+                .sslOptions(sslOptions)
+                .build();
+            
+            builder.clientOptions(clientOptions);
             builder.useSsl();
         }
 
-        JedisClientConfiguration clientConfig = builder.build();
+        LettuceClientConfiguration clientConfig = builder.build();
 
-        return new JedisConnectionFactory(redisStandaloneConfiguration, clientConfig);
+        return new LettuceConnectionFactory(redisStandaloneConfiguration, clientConfig);
     }
 
     @Bean
     RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 
-        redisTemplate.setConnectionFactory(jedisConnectionFactory());
+        redisTemplate.setConnectionFactory(lettuceConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
