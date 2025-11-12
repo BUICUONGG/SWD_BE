@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
-
-import java.time.Instant;
 
 @Getter
 @Setter
@@ -16,7 +13,7 @@ import java.time.Instant;
 @SuperBuilder
 @Table(name = "team_member", schema = "exegrouping")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TeamMember extends BaseEntity {
+public class TeamMemberEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_member_id", nullable = false)
@@ -24,9 +21,9 @@ public class TeamMember extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "team_id")
-    Team team;
+    TeamEntity teamEntity;
 
     @ManyToOne
     @JoinColumn(name = "enrollment_id")
-    Enrollment enrollment;
+    EnrollmentEntity enrollment;
 }

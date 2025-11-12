@@ -1,14 +1,10 @@
 package swd.fpt.exegroupingmanagement.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import swd.fpt.exegroupingmanagement.enums.ApplicationStatus;
-
-import java.time.Instant;
 
 @Getter
 @Setter
@@ -18,7 +14,7 @@ import java.time.Instant;
 @SuperBuilder
 @Table(name = "application", schema = "exegrouping")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Application extends BaseEntity {
+public class ApplicationEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "application_id", nullable = false)
@@ -31,9 +27,9 @@ public class Application extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "enrollment_id")
-    Enrollment enrollment;
+    EnrollmentEntity enrollment;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
-    Team team;
+    TeamEntity teamEntity;
 }

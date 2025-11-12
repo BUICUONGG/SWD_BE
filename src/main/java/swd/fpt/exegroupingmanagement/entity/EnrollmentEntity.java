@@ -1,6 +1,7 @@
 package swd.fpt.exegroupingmanagement.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -31,7 +32,7 @@ public class EnrollmentEntity extends BaseEntity {
       
     @Column(name = "approved_by")
     Long approvedBy;
-    
+
     @Column(name = "approved_at")
     LocalDateTime approvedAt;
     
@@ -46,5 +47,13 @@ public class EnrollmentEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     CourseEntity course;
+
+    @OneToMany
+    @JoinColumn(name = "enrollment_id")
+    List<ApplicationEntity> applications; // cac request tham gia nhom
+
+    @OneToMany
+    @JoinColumn(name = "enrollment_id")
+    List<IdeaEntity> ideas;
 }
 

@@ -5,9 +5,6 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
-
-import java.time.Instant;
 
 @Getter
 @Setter
@@ -17,7 +14,7 @@ import java.time.Instant;
 @SuperBuilder
 @Table(name = "idea", schema = "exegrouping")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Idea extends BaseEntity {
+public class IdeaEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idea_id", nullable = false)
@@ -33,6 +30,6 @@ public class Idea extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "enrollment_id")
-    Enrollment enrollment;
+    EnrollmentEntity enrollment;
 
 }
