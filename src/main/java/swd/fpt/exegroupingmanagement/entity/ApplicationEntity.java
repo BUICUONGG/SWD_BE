@@ -23,7 +23,7 @@ public class ApplicationEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50)
     @Builder.Default
-    ApplicationStatus status = ApplicationStatus.PENDING;
+    ApplicationStatus status = ApplicationStatus.APPLIED;
 
     @ManyToOne
     @JoinColumn(name = "enrollment_id")
