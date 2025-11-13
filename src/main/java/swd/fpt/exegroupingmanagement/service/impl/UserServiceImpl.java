@@ -23,7 +23,9 @@ import swd.fpt.exegroupingmanagement.exception.exceptions.ForbiddenException;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceConflictException;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceNotFoundException;
 import swd.fpt.exegroupingmanagement.exception.exceptions.UnauthorizedException;
+import swd.fpt.exegroupingmanagement.entity.MajorEntity;
 import swd.fpt.exegroupingmanagement.mapper.UserMapper;
+import swd.fpt.exegroupingmanagement.repository.MajorRepository;
 import swd.fpt.exegroupingmanagement.repository.RoleRepository;
 import swd.fpt.exegroupingmanagement.repository.UserRepository;
 import swd.fpt.exegroupingmanagement.service.UserService;
@@ -36,6 +38,7 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
     UserRepository userRepository;
     RoleRepository roleRepository;
+    MajorRepository majorRepository;
     PasswordEncoder passwordEncoder;
 
     @Override
@@ -119,12 +122,20 @@ public class UserServiceImpl implements UserService {
         RoleEntity role = roleRepository.findById(request.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role"));
         
+        // Get major if provided
+        MajorEntity major = null;
+        if (request.getMajorId() != null) {
+            major = majorRepository.findById(request.getMajorId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy chuyên ngành"));
+        }
+        
         // Create user entity
         UserEntity user = UserEntity.builder()
                 .email(request.getEmail())
                 .fullName(request.getFullName())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .role(role)
+                .major(major)
                 .gender(request.getGender())
                 .dob(request.getDob())
                 .status(request.getStatus() != null ? request.getStatus() : UserStatus.ACTIVE)

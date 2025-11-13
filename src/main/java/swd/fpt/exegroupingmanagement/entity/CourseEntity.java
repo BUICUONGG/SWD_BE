@@ -46,7 +46,7 @@ public class CourseEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
-    CourseStatus status = CourseStatus.OPEN;
+    CourseStatus status = CourseStatus.UPCOMING;
     
 
     @ManyToOne(fetch = FetchType.LAZY)

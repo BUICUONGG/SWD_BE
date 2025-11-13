@@ -91,5 +91,38 @@ public class MajorServiceImpl implements MajorService {
         List<MajorEntity> entities = majorRepository.findAll(spec);
         return majorMapper.toResponseList(entities);
     }
+
+    @Override
+    public MajorEntity getMajorEntityByCode(String code) {
+        return majorRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy chuyên ngành với mã: " + code));
+    }
+
+    @Override
+    public String parseMajorCodeFromEmail(String email) {
+        if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@fpt\\.edu\\.vn$")) {
+            return null;
+        }
+        
+        // Email format: vinhlqse182115@fpt.edu.vn
+        // Extract major code (SE, SS, SA, etc.) from email
+        String localPart = email.substring(0, email.indexOf("@"));
+        
+        // Pattern: nameXXnumber where XX is major code
+        // Try to find 2 consecutive uppercase letters
+        for (int i = 0; i < localPart.length() - 1; i++) {
+            char c1 = Character.toUpperCase(localPart.charAt(i));
+            char c2 = Character.toUpperCase(localPart.charAt(i + 1));
+            
+            if (Character.isLetter(c1) && Character.isLetter(c2)) {
+                // Check if next characters are digits (to confirm this is the major code)
+                if (i + 2 < localPart.length() && Character.isDigit(localPart.charAt(i + 2))) {
+                    return String.valueOf(c1) + c2;
+                }
+            }
+        }
+        
+        return null;
+    }
 }
 

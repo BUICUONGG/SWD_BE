@@ -64,7 +64,7 @@ public class CourseServiceImpl implements CourseService {
         
         // Set default values
         if (entity.getStatus() == null) {
-            entity.setStatus(CourseStatus.OPEN);
+            entity.setStatus(CourseStatus.UPCOMING);
         }
         if (entity.getCurrentStudents() == null) {
             entity.setCurrentStudents(0);

@@ -14,11 +14,25 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import swd.fpt.exegroupingmanagement.constant.PredefinedRole;
-import swd.fpt.exegroupingmanagement.entity.*;
+import swd.fpt.exegroupingmanagement.entity.CourseEntity;
+import swd.fpt.exegroupingmanagement.entity.EnrollmentEntity;
+import swd.fpt.exegroupingmanagement.entity.MajorEntity;
+import swd.fpt.exegroupingmanagement.entity.MentorProfileEntity;
+import swd.fpt.exegroupingmanagement.entity.RoleEntity;
+import swd.fpt.exegroupingmanagement.entity.SemesterEntity;
+import swd.fpt.exegroupingmanagement.entity.SubjectEntity;
+import swd.fpt.exegroupingmanagement.entity.UserEntity;
 import swd.fpt.exegroupingmanagement.enums.CourseStatus;
 import swd.fpt.exegroupingmanagement.enums.SemesterTerm;
 import swd.fpt.exegroupingmanagement.enums.UserStatus;
-import swd.fpt.exegroupingmanagement.repository.*;
+import swd.fpt.exegroupingmanagement.repository.CourseRepository;
+import swd.fpt.exegroupingmanagement.repository.EnrollmentRepository;
+import swd.fpt.exegroupingmanagement.repository.MajorRepository;
+import swd.fpt.exegroupingmanagement.repository.MentorProfileRepository;
+import swd.fpt.exegroupingmanagement.repository.RoleRepository;
+import swd.fpt.exegroupingmanagement.repository.SemesterRepository;
+import swd.fpt.exegroupingmanagement.repository.SubjectRepository;
+import swd.fpt.exegroupingmanagement.repository.UserRepository;
 
 @Slf4j
 @Configuration
@@ -97,19 +111,19 @@ public class ApplicationInitConfig {
                         .build();
                 majorRepository.save(seMajor);
                 
-                MajorEntity iaMajor = MajorEntity.builder()
-                        .code("SA")
-                        .name("Information Assurance")
-                        .isActive(true)
-                        .build();
-                majorRepository.save(iaMajor);
-                
-                MajorEntity dsMajor = MajorEntity.builder()
+                MajorEntity ssMajor = MajorEntity.builder()
                         .code("SS")
-                        .name("Digital Transformation")
+                        .name("Business")
                         .isActive(true)
                         .build();
-                majorRepository.save(dsMajor);
+                majorRepository.save(ssMajor);
+                
+                MajorEntity saMajor = MajorEntity.builder()
+                        .code("SA")
+                        .name("Languages")
+                        .isActive(true)
+                        .build();
+                majorRepository.save(saMajor);
                 
             }
             

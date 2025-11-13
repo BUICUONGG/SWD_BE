@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.transaction.annotation.Transactional;
 import swd.fpt.exegroupingmanagement.entity.DeviceTokenEntity;
 
 @Repository
@@ -37,12 +38,14 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceTokenEntity, 
      * Deactivate token (khi user logout)
      */
     @Modifying
+    @Transactional
     @Query("UPDATE DeviceTokenEntity dt SET dt.isActive = false WHERE dt.token = :token")
     int deactivateToken(@Param("token") String token);
     
     /**
      * Deactivate tất cả tokens của user (khi user logout khỏi tất cả thiết bị)
      */
+    @Transactional
     @Modifying
     @Query("UPDATE DeviceTokenEntity dt SET dt.isActive = false WHERE dt.user.userId = :userId")
     int deactivateAllUserTokens(@Param("userId") Long userId);
@@ -51,6 +54,7 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceTokenEntity, 
      * Xóa các token cũ không được sử dụng trong X ngày
      * Dùng để cleanup database định kỳ
      */
+    @Transactional
     @Modifying
     @Query("DELETE FROM DeviceTokenEntity dt WHERE dt.lastUsedAt < :expiryDate")
     int deleteExpiredTokens(@Param("expiryDate") LocalDateTime expiryDate);
@@ -58,6 +62,8 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceTokenEntity, 
     /**
      * Update last used time
      */
+
+    @Transactional
     @Modifying
     @Query("UPDATE DeviceTokenEntity dt SET dt.lastUsedAt = :lastUsedAt WHERE dt.token = :token")
     int updateLastUsedAt(@Param("token") String token, @Param("lastUsedAt") LocalDateTime lastUsedAt);

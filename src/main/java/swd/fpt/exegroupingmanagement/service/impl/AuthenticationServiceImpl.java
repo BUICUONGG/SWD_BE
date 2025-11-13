@@ -45,6 +45,7 @@ import swd.fpt.exegroupingmanagement.repository.httpclient.OutboundAuthClient;
 import swd.fpt.exegroupingmanagement.repository.httpclient.OutboundUserClient;
 import swd.fpt.exegroupingmanagement.service.AuthenticationService;
 import swd.fpt.exegroupingmanagement.service.JwtService;
+import swd.fpt.exegroupingmanagement.service.MajorService;
 import swd.fpt.exegroupingmanagement.service.RedisService;
 import swd.fpt.exegroupingmanagement.service.RefreshTokenService;
 import swd.fpt.exegroupingmanagement.service.RoleService;
@@ -60,6 +61,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     RoleService roleService;
+    MajorService majorService;
     OutboundAuthClient outboundAuthClient;
     OutboundUserClient outboundUserClient;
     JwtService jwtService;
@@ -89,14 +91,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new ResourceConflictException(ErrorCode.USER_ALREADY_EXISTS.getMessage());
         }
         RoleEntity roleEntity = roleService.findByRoleName(PredefinedRole.ROLE_STUDENT);
-        UserEntity userEntity = UserEntity.builder()
+        
+        // Parse major code from email (e.g., vinhlqse182115@fpt.edu.vn -> SE)
+        String majorCode = majorService.parseMajorCodeFromEmail(userRegisterRequest.getEmail());
+        
+        var userBuilder = UserEntity.builder()
                 .email(userRegisterRequest.getEmail())
                 .fullName(userRegisterRequest.getFullName())
                 .dob(userRegisterRequest.getDob())
                 .gender(userRegisterRequest.getGender())
                 .passwordHash(passwordEncoder.encode(userRegisterRequest.getPassword()))
-                .role(roleEntity)
-                .build();
+                .role(roleEntity);
+        
+        // Set major if found
+        if (majorCode != null) {
+            try {
+                userBuilder.major(majorService.getMajorEntityByCode(majorCode));
+            } catch (ResourceNotFoundException e) {
+                log.warn("Major code {} parsed from email {} not found in database", majorCode, userRegisterRequest.getEmail());
+            }
+        }
+        
+        UserEntity userEntity = userBuilder.build();
         userRepository.save(userEntity);
         return userMapper.toEntityDTO(userEntity);
     }

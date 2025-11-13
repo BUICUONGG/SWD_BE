@@ -2,7 +2,10 @@ package swd.fpt.exegroupingmanagement.dto.request;
 
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -26,6 +29,8 @@ public class UserRequest {
     
     @NotNull(message = "Role không được để trống")
     Long roleId;
+    
+    Long majorId;
     
     Gender gender;
     

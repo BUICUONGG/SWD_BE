@@ -11,7 +11,6 @@ import swd.fpt.exegroupingmanagement.enums.Provider;
 import swd.fpt.exegroupingmanagement.enums.UserStatus;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -64,4 +63,8 @@ public class UserEntity extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     RoleEntity role;
+
+    @ManyToOne
+    @JoinColumn(name = "major_id")
+    MajorEntity major;
 }

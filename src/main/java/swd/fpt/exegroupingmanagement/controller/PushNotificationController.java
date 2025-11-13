@@ -77,9 +77,9 @@ public class PushNotificationController {
     }
 
     @PostMapping("/send")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Send push notification to multiple users (Admin only)",
-               description = "Send notification to selected users. Admins can use this to send announcements.")
+//    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Send push notification to multiple users",
+               description = "Send notification to selected users.")
     public ResponseEntity<StandardResponse<Object>> sendNotification(
             @Valid @RequestBody SendNotificationRequest request) {
         
@@ -105,7 +105,7 @@ public class PushNotificationController {
      * - Thông báo sự kiện quan trọng
      */
     @PostMapping("/broadcast")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Broadcast notification to all users (Admin only)",
                description = "Send notification to ALL users. Use carefully for important announcements only.")
     public ResponseEntity<StandardResponse<Object>> broadcastNotification(
