@@ -1,14 +1,12 @@
 package swd.fpt.exegroupingmanagement.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 import swd.fpt.exegroupingmanagement.enums.TeamStatus;
 
-import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,9 +14,9 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-@Table(name = "team", schema = "exegrouping")
+@Table(name = "teamEntity", schema = "exegrouping")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Team extends BaseEntity {
+public class TeamEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_id", nullable = false)
@@ -26,18 +24,26 @@ public class Team extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "course_id")
-    Course course;
+    CourseEntity course;
 
     @Lob
-    @Column(name = "description")
-    String description;
+    @Column(name = "name")
+    String name;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @Column(name = "status", length = 50)
-    TeamStatus status = TeamStatus.PENDING;
+    TeamStatus status = TeamStatus.OPENING;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "idea_id")
-    Idea idea;
+    IdeaEntity idea;
+
+    @OneToMany
+    @JoinColumn(name = "team_id")
+    List<ApplicationEntity> applications;
+
+    @OneToMany
+    @JoinColumn(name = "team_id")
+    List<TeamMemberEntity> teamMembers;
 }

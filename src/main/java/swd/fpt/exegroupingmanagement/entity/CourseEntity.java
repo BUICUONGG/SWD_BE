@@ -1,6 +1,7 @@
 package swd.fpt.exegroupingmanagement.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -60,5 +61,9 @@ public class CourseEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "semester_id", nullable = false)
     SemesterEntity semester;
+
+    @OneToMany
+    @JoinColumn(name = "course_id")
+    List<TeamEntity> teams;
 }
 

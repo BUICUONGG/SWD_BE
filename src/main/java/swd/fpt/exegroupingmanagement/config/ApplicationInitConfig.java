@@ -557,7 +557,7 @@ public class ApplicationInitConfig {
                 log.info("Created 5 enrollments for students");
             }
             
-            log.info("Application initialization completed!");
+            log.info("ApplicationEntity initialization completed!");
         };
     }
 }

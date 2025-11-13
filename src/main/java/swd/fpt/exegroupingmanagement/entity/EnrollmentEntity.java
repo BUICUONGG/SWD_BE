@@ -1,16 +1,9 @@
 package swd.fpt.exegroupingmanagement.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,7 +29,7 @@ public class EnrollmentEntity extends BaseEntity {
   
     @Column(name = "enrollment_date", nullable = false)
     LocalDateTime enrollmentDate;
-      
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     UserEntity user;
@@ -44,5 +37,17 @@ public class EnrollmentEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     CourseEntity course;
+
+    @OneToMany
+    @JoinColumn(name = "enrollment_id")
+    List<ApplicationEntity> applications; // cac request tham gia nhom
+
+    @OneToMany
+    @JoinColumn(name = "enrollment_id")
+    List<IdeaEntity> ideas;
+
+    @OneToMany
+    @JoinColumn(name = "enrollment_id")
+    List<TeamMemberEntity> teamMembers; // cac nhom da tham gia
 }
 

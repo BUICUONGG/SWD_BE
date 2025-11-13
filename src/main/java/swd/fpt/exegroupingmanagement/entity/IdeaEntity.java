@@ -1,12 +1,10 @@
 package swd.fpt.exegroupingmanagement.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
-
-import java.time.Instant;
 
 @Getter
 @Setter
@@ -14,19 +12,24 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-@Table(name = "team_member", schema = "exegrouping")
+@Table(name = "idea", schema = "exegrouping")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TeamMember extends BaseEntity {
+public class IdeaEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "team_member_id", nullable = false)
+    @Column(name = "idea_id", nullable = false)
     Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "team_id")
-    Team team;
+    @Size(max = 255)
+    @Column(name = "name")
+    String name;
+
+    @Lob
+    @Column(name = "description")
+    String description;
 
     @ManyToOne
     @JoinColumn(name = "enrollment_id")
-    Enrollment enrollment;
+    EnrollmentEntity enrollment;
+
 }
