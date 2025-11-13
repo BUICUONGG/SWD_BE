@@ -55,5 +55,9 @@ public class EnrollmentEntity extends BaseEntity {
     @OneToMany
     @JoinColumn(name = "enrollment_id")
     List<IdeaEntity> ideas;
+
+    @OneToMany
+    @JoinColumn(name = "enrollment_id")
+    List<TeamMemberEntity> teamMembers; // cac nhom da tham gia
 }
 
