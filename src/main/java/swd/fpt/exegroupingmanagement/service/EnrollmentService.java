@@ -10,9 +10,8 @@ public interface EnrollmentService {
     EnrollmentResponse getById(Long id);
     List<EnrollmentResponse> getByUser(Long userId);
     List<EnrollmentResponse> getByCourse(Long courseId);
-    EnrollmentResponse approveEnrollment(Long id, Long approvedBy);
-    EnrollmentResponse completeEnrollment(Long id);
     void delete(Long id);
+    void unenrollCurrentUser(Long courseId);
     
     // Search method
     List<EnrollmentResponse> searchEnrollments(Long userId, Long courseId);

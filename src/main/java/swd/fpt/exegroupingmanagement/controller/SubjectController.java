@@ -2,8 +2,8 @@ package swd.fpt.exegroupingmanagement.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +35,7 @@ public class SubjectController {
     SubjectService subjectService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Create a new subject")
     public ResponseEntity<StandardResponse<Object>> create(@Valid @RequestBody SubjectRequest request) {
         SubjectResponse result = subjectService.create(request);
@@ -42,6 +43,7 @@ public class SubjectController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get subject by ID")
     public ResponseEntity<StandardResponse<Object>> getById(@PathVariable Long id) {
         SubjectResponse result = subjectService.getById(id);
@@ -49,6 +51,7 @@ public class SubjectController {
     }
 
     @GetMapping("/code/{code}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get subject by code")
     public ResponseEntity<StandardResponse<Object>> getByCode(@PathVariable String code) {
         SubjectResponse result = subjectService.getByCode(code);
@@ -56,6 +59,7 @@ public class SubjectController {
     }
 
     @GetMapping
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get all subjects")
     public ResponseEntity<StandardResponse<Object>> getAll() {
         List<SubjectResponse> result = subjectService.getAll();
@@ -63,6 +67,7 @@ public class SubjectController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Search subjects", 
                description = "Search subjects by keyword matching code or name")
     public ResponseEntity<StandardResponse<Object>> search(
@@ -75,6 +80,7 @@ public class SubjectController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Update subject")
     public ResponseEntity<StandardResponse<Object>> update(
             @PathVariable Long id,
@@ -84,6 +90,7 @@ public class SubjectController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Delete subject")
     public ResponseEntity<StandardResponse<String>> delete(@PathVariable Long id) {
         subjectService.delete(id);

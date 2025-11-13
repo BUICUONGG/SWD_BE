@@ -3,6 +3,7 @@ package swd.fpt.exegroupingmanagement.config;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -76,6 +77,14 @@ public class ApplicationInitConfig {
                 
             }
             
+            // Lấy majors để gán cho các tài khoản mẫu
+            MajorEntity seMajorRef = majorRepository.findByCode("SE")
+                    .orElseThrow(() -> new IllegalStateException("Không tìm thấy chuyên ngành SE"));
+            MajorEntity ssMajorRef = majorRepository.findByCode("SS")
+                    .orElseThrow(() -> new IllegalStateException("Không tìm thấy chuyên ngành SS"));
+            MajorEntity saMajorRef = majorRepository.findByCode("SA")
+                    .orElseThrow(() -> new IllegalStateException("Không tìm thấy chuyên ngành SA"));
+
             // Tạo roles và users SAU khi đã có majors
             if (roleRepository.findByRoleName(PredefinedRole.ROLE_ADMIN).isEmpty()) {
                 RoleEntity adminRole = RoleEntity.builder()
@@ -107,6 +116,7 @@ public class ApplicationInitConfig {
                         .dob(LocalDate.of(2000, 1, 1))
                         .avatarUrl("https://example.com/student-avatar.png")
                         .role(studentRole)
+                        .major(seMajorRef)
                         .passwordHash(passwordEncoder.encode("student"))
                         .build();
                 userRepository.save(studentAccount);
@@ -338,12 +348,15 @@ public class ApplicationInitConfig {
                 
                 // Course 1: EXE101 - Fall 2024 - Class 01
                 if (exe101 != null && fall2024 != null && mentor1 != null) {
+                    LocalDateTime teamFormationDeadline = fall2024.getStartDate()
+                            .plusWeeks(1)
+                            .atTime(LocalTime.of(23, 59));
                     CourseEntity course1 = CourseEntity.builder()
                             .code("EXE101_FA24_01")
                             .name("Experiential Entrepreneurship 1 - Class 01")
                             .maxStudents(35)
                             .currentStudents(0)
-                            .teamFormationDeadline(LocalDateTime.of(2024, 10, 5, 23, 59))
+                            .teamFormationDeadline(teamFormationDeadline)
                             .status(CourseStatus.OPEN)
                             .subject(exe101)
                             .semester(fall2024)
@@ -354,12 +367,15 @@ public class ApplicationInitConfig {
                 
                 // Course 2: EXE101 - Fall 2024 - Class 02
                 if (exe101 != null && fall2024 != null && mentor2 != null) {
+                    LocalDateTime teamFormationDeadline = fall2024.getStartDate()
+                            .plusWeeks(1)
+                            .atTime(LocalTime.of(23, 59));
                     CourseEntity course2 = CourseEntity.builder()
                             .code("EXE101_FA24_02")
                             .name("Experiential Entrepreneurship 1 - Class 02")
                             .maxStudents(35)
                             .currentStudents(0)
-                            .teamFormationDeadline(LocalDateTime.of(2024, 10, 5, 23, 59))
+                            .teamFormationDeadline(teamFormationDeadline)
                             .status(CourseStatus.OPEN)
                             .subject(exe101)
                             .semester(fall2024)
@@ -370,12 +386,15 @@ public class ApplicationInitConfig {
                 
                 // Course 3: EXE201 - Fall 2024 - Class 01
                 if (exe201 != null && fall2024 != null && mentor3 != null) {
+                    LocalDateTime teamFormationDeadline = fall2024.getStartDate()
+                            .plusWeeks(1)
+                            .atTime(LocalTime.of(23, 59));
                     CourseEntity course3 = CourseEntity.builder()
                             .code("EXE201_FA24_01")
                             .name("Experiential Entrepreneurship 2 - Class 01")
                             .maxStudents(30)
                             .currentStudents(0)
-                            .teamFormationDeadline(LocalDateTime.of(2024, 10, 10, 23, 59))
+                            .teamFormationDeadline(teamFormationDeadline)
                             .status(CourseStatus.OPEN)
                             .subject(exe201)
                             .semester(fall2024)
@@ -386,12 +405,15 @@ public class ApplicationInitConfig {
                 
                 // Course 4: EXE101 - Spring 2025 - Class 01
                 if (exe101 != null && spring2025 != null && mentor4 != null) {
+                    LocalDateTime teamFormationDeadline = spring2025.getStartDate()
+                            .plusWeeks(1)
+                            .atTime(LocalTime.of(23, 59));
                     CourseEntity course4 = CourseEntity.builder()
                             .code("EXE101_SP25_01")
                             .name("Experiential Entrepreneurship 1 - Class 01")
                             .maxStudents(40)
                             .currentStudents(0)
-                            .teamFormationDeadline(LocalDateTime.of(2025, 2, 15, 23, 59))
+                            .teamFormationDeadline(teamFormationDeadline)
                             .status(CourseStatus.UPCOMING)
                             .subject(exe101)
                             .semester(spring2025)
@@ -402,12 +424,15 @@ public class ApplicationInitConfig {
                 
                 // Course 5: EXE201 - Spring 2025 - Class 01
                 if (exe201 != null && spring2025 != null && mentor5 != null) {
+                    LocalDateTime teamFormationDeadline = spring2025.getStartDate()
+                            .plusWeeks(1)
+                            .atTime(LocalTime.of(23, 59));
                     CourseEntity course5 = CourseEntity.builder()
                             .code("EXE201_SP25_01")
                             .name("Experiential Entrepreneurship 2 - Class 01")
                             .maxStudents(30)
                             .currentStudents(0)
-                            .teamFormationDeadline(LocalDateTime.of(2025, 2, 20, 23, 59))
+                            .teamFormationDeadline(teamFormationDeadline)
                             .status(CourseStatus.UPCOMING)
                             .subject(exe201)
                             .semester(spring2025)

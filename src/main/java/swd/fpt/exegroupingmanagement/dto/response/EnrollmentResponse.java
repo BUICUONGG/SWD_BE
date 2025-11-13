@@ -1,11 +1,12 @@
 package swd.fpt.exegroupingmanagement.dto.response;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -13,9 +14,6 @@ import java.time.LocalDateTime;
 public class EnrollmentResponse {
     Long enrollmentId;
     LocalDateTime enrollmentDate;
-    Long approvedBy;
-    LocalDateTime approvedAt;
-    LocalDateTime completedAt;
     Boolean isDeleted;
 
     // Related entities

@@ -2,11 +2,10 @@ package swd.fpt.exegroupingmanagement.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +34,7 @@ public class EnrollmentController {
     EnrollmentService enrollmentService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('STUDENT')")
     @Operation(summary = "Enroll a student in a course")
     public ResponseEntity<StandardResponse<Object>> enroll(@Valid @RequestBody EnrollmentRequest request) {
         EnrollmentResponse result = enrollmentService.enroll(request);
@@ -42,6 +42,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MENTOR')")
     @Operation(summary = "Get enrollment by ID")
     public ResponseEntity<StandardResponse<Object>> getById(@PathVariable Long id) {
         EnrollmentResponse result = enrollmentService.getById(id);
@@ -49,6 +50,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MENTOR')")
     @Operation(summary = "Get enrollments by user")
     public ResponseEntity<StandardResponse<Object>> getByUser(@PathVariable Long userId) {
         List<EnrollmentResponse> result = enrollmentService.getByUser(userId);
@@ -56,6 +58,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/course/{courseId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MENTOR')")
     @Operation(summary = "Get enrollments by course")
     public ResponseEntity<StandardResponse<Object>> getByCourse(@PathVariable Long courseId) {
         List<EnrollmentResponse> result = enrollmentService.getByCourse(courseId);
@@ -65,6 +68,7 @@ public class EnrollmentController {
     @GetMapping("/search")
     @Operation(summary = "Search enrollments", 
                description = "Search enrollments by userId, courseId, or both")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MENTOR')")
     public ResponseEntity<StandardResponse<Object>> search(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long courseId) {
@@ -75,27 +79,20 @@ public class EnrollmentController {
                 result));
     }
 
-    @PatchMapping("/{id}/approve")
-    @Operation(summary = "Approve enrollment")
-    public ResponseEntity<StandardResponse<Object>> approve(
-            @PathVariable Long id,
-            @RequestParam Long approvedBy) {
-        EnrollmentResponse result = enrollmentService.approveEnrollment(id, approvedBy);
-        return ResponseEntity.ok(success("Phê duyệt đăng ký thành công", result));
-    }
-
-    @PatchMapping("/{id}/complete")
-    @Operation(summary = "Complete enrollment")
-    public ResponseEntity<StandardResponse<Object>> complete(@PathVariable Long id) {
-        EnrollmentResponse result = enrollmentService.completeEnrollment(id);
-        return ResponseEntity.ok(success("Hoàn thành đăng ký", result));
-    }
-
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Delete enrollment")
     public ResponseEntity<StandardResponse<String>> delete(@PathVariable Long id) {
         enrollmentService.delete(id);
         return ResponseEntity.ok(success("Hủy đăng ký thành công"));
+    }
+
+    @DeleteMapping("/my-courses/{courseId}")
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @Operation(summary = "Unenroll current student from course", description = "Sinh viên hủy đăng ký khóa học của chính mình")
+    public ResponseEntity<StandardResponse<String>> unenrollCurrentUser(@PathVariable Long courseId) {
+        enrollmentService.unenrollCurrentUser(courseId);
+        return ResponseEntity.ok(success("Hủy đăng ký lớp thành công"));
     }
 }
 

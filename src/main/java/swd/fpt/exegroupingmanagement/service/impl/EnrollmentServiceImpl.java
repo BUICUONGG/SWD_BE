@@ -3,6 +3,7 @@ package swd.fpt.exegroupingmanagement.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import swd.fpt.exegroupingmanagement.dto.response.EnrollmentResponse;
 import swd.fpt.exegroupingmanagement.entity.CourseEntity;
 import swd.fpt.exegroupingmanagement.entity.EnrollmentEntity;
 import swd.fpt.exegroupingmanagement.entity.UserEntity;
+import swd.fpt.exegroupingmanagement.enums.CourseStatus;
 import swd.fpt.exegroupingmanagement.exception.exceptions.BusinessException;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceConflictException;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceNotFoundException;
@@ -46,6 +48,10 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         CourseEntity course = courseRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lớp"));
         
+        if (!CourseStatus.OPEN.equals(course.getStatus())) {
+            throw new BusinessException("Chỉ lớp đang ở trạng thái OPEN mới cho phép đăng ký");
+        }
+
         if (course.getCurrentStudents() >= course.getMaxStudents()) {
             throw new BusinessException("Lớp đã đầy");
         }
@@ -84,31 +90,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     @Transactional
-    public EnrollmentResponse approveEnrollment(Long id, Long approvedBy) {
-        EnrollmentEntity entity = enrollmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đăng ký"));
-        
-        entity.setApprovedBy(approvedBy);
-        entity.setApprovedAt(LocalDateTime.now());
-        
-        EnrollmentEntity updated = enrollmentRepository.save(entity);
-        return enrollmentMapper.toResponse(updated);
-    }
-
-    @Override
-    @Transactional
-    public EnrollmentResponse completeEnrollment(Long id) {
-        EnrollmentEntity entity = enrollmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đăng ký"));
-        
-        entity.setCompletedAt(LocalDateTime.now());
-        
-        EnrollmentEntity updated = enrollmentRepository.save(entity);
-        return enrollmentMapper.toResponse(updated);
-    }
-
-    @Override
-    @Transactional
     public void delete(Long id) {
         EnrollmentEntity entity = enrollmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đăng ký"));
@@ -117,6 +98,28 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         course.setCurrentStudents(Math.max(0, course.getCurrentStudents() - 1));
         courseRepository.save(course);
         
+        entity.setDeleted(true);
+        enrollmentRepository.save(entity);
+    }
+
+    @Override
+    @Transactional
+    public void unenrollCurrentUser(Long courseId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
+
+        EnrollmentEntity entity = enrollmentRepository.findByUser_UserIdAndCourse_CourseId(user.getUserId(), courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bạn chưa đăng ký lớp học này"));
+
+        CourseEntity course = entity.getCourse();
+        if (!CourseStatus.OPEN.equals(course.getStatus())) {
+            throw new BusinessException("Chỉ lớp đang ở trạng thái OPEN mới cho phép hủy đăng ký");
+        }
+
+        course.setCurrentStudents(Math.max(0, course.getCurrentStudents() - 1));
+        courseRepository.save(course);
+
         entity.setDeleted(true);
         enrollmentRepository.save(entity);
     }

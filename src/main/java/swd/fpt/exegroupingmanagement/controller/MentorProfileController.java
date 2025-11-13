@@ -2,8 +2,8 @@ package swd.fpt.exegroupingmanagement.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +35,7 @@ public class MentorProfileController {
     MentorProfileService mentorProfileService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Create a new mentor profile")
     public ResponseEntity<StandardResponse<Object>> create(@Valid @RequestBody MentorProfileRequest request) {
         MentorProfileResponse result = mentorProfileService.create(request);
@@ -42,6 +43,7 @@ public class MentorProfileController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get mentor profile by ID")
     public ResponseEntity<StandardResponse<Object>> getById(@PathVariable Long id) {
         MentorProfileResponse result = mentorProfileService.getById(id);
@@ -49,6 +51,7 @@ public class MentorProfileController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get mentor profile by user ID")
     public ResponseEntity<StandardResponse<Object>> getByUserId(@PathVariable Long userId) {
         MentorProfileResponse result = mentorProfileService.getByUserId(userId);
@@ -57,6 +60,7 @@ public class MentorProfileController {
 
 
     @GetMapping
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get all mentor profiles")
     public ResponseEntity<StandardResponse<Object>> getAll() {
         List<MentorProfileResponse> result = mentorProfileService.getAll();
@@ -66,6 +70,7 @@ public class MentorProfileController {
     @GetMapping("/search")
     @Operation(summary = "Search mentor profiles", 
                description = "Search mentor profiles by shortName or user's fullName")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<StandardResponse<Object>> search(
             @RequestParam(required = false) String keyword) {
         
@@ -76,6 +81,7 @@ public class MentorProfileController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Update mentor profile")
     public ResponseEntity<StandardResponse<Object>> update(
             @PathVariable Long id,
@@ -85,6 +91,7 @@ public class MentorProfileController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Delete mentor profile")
     public ResponseEntity<StandardResponse<String>> delete(@PathVariable Long id) {
         mentorProfileService.delete(id);

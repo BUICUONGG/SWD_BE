@@ -2,8 +2,8 @@ package swd.fpt.exegroupingmanagement.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +34,7 @@ public class SemesterController {
     SemesterService semesterService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Create a new semester")
     public ResponseEntity<StandardResponse<Object>> create(@Valid @RequestBody SemesterRequest request) {
         SemesterResponse result = semesterService.create(request);
@@ -41,6 +42,7 @@ public class SemesterController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get semester by ID")
     public ResponseEntity<StandardResponse<Object>> getById(@PathVariable Long id) {
         SemesterResponse result = semesterService.getById(id);
@@ -48,6 +50,7 @@ public class SemesterController {
     }
 
     @GetMapping("/code/{code}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get semester by code")
     public ResponseEntity<StandardResponse<Object>> getByCode(@PathVariable String code) {
         SemesterResponse result = semesterService.getByCode(code);
@@ -55,6 +58,7 @@ public class SemesterController {
     }
 
     @GetMapping
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get all semesters")
     public ResponseEntity<StandardResponse<Object>> getAll() {
         List<SemesterResponse> result = semesterService.getAll();
@@ -62,6 +66,7 @@ public class SemesterController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Update semester")
     public ResponseEntity<StandardResponse<Object>> update(
             @PathVariable Long id,
@@ -71,6 +76,7 @@ public class SemesterController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Delete semester")
     public ResponseEntity<StandardResponse<String>> delete(@PathVariable Long id) {
         semesterService.delete(id);

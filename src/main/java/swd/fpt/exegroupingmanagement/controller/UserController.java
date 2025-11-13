@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +40,7 @@ public class UserController {
     ExcelImportService excelImportService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Create new user (Admin only)")
     public ResponseEntity<StandardResponse<Object>> createUser(@Valid @RequestBody UserRequest request) {
         UserResponse result = userService.createUser(request);
@@ -46,6 +48,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get current user information")
     public ResponseEntity<StandardResponse<Object>> getMyInfo() {
         UserResponse result = userService.getMyInform();
@@ -53,6 +56,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Get user by ID")
     public ResponseEntity<StandardResponse<Object>> getUserById(@PathVariable Long id) {
         UserResponse result = userService.getUserResponseById(id);
@@ -60,6 +64,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Get all users")
     public ResponseEntity<StandardResponse<Object>> getAllUsers() {
         List<UserResponse> result = userService.getAllUsers();
@@ -69,6 +74,7 @@ public class UserController {
     @GetMapping("/search")
     @Operation(summary = "Search users by email or fullName", 
                description = "Search users by keyword matching email or full name (case-insensitive)")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<StandardResponse<Object>> searchUsers(
             @RequestParam(required = false) String keyword) {
         
@@ -79,6 +85,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Delete user (soft delete)")
     public ResponseEntity<StandardResponse<String>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
@@ -86,6 +93,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/restore")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Restore deleted user")
     public ResponseEntity<StandardResponse<String>> restoreUser(@PathVariable Long id) {
         userService.restoreUser(id);
@@ -93,6 +101,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Import students from Excel file (Admin only)",
                description = "Upload Excel file (.xlsx) with columns: Email | Full Name | Password | Gender | Date of Birth")
     public ResponseEntity<StandardResponse<Object>> importStudents(

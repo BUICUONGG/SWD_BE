@@ -2,8 +2,8 @@ package swd.fpt.exegroupingmanagement.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +36,7 @@ public class CourseController {
     CourseService courseService;
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN','MENTOR')")
     @Operation(summary = "Create a new course")
     public ResponseEntity<StandardResponse<Object>> create(@Valid @RequestBody CourseRequest request) {
         CourseResponse result = courseService.create(request);
@@ -43,6 +44,7 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get course by ID")
     public ResponseEntity<StandardResponse<Object>> getById(@PathVariable Long id) {
         CourseResponse result = courseService.getById(id);
@@ -50,6 +52,7 @@ public class CourseController {
     }
 
     @GetMapping("/code/{code}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get course by code")
     public ResponseEntity<StandardResponse<Object>> getByCode(@PathVariable String code) {
         CourseResponse result = courseService.getByCode(code);
@@ -57,6 +60,7 @@ public class CourseController {
     }
 
     @GetMapping
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get all courses")
     public ResponseEntity<StandardResponse<Object>> getAll() {
         List<CourseResponse> result = courseService.getAll();
@@ -64,6 +68,7 @@ public class CourseController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Search courses with multiple filters", 
                description = "Search courses by keyword (code or name), status, semester, mentor, and subject")
     public ResponseEntity<StandardResponse<Object>> search(
@@ -80,6 +85,7 @@ public class CourseController {
     }
 
     @GetMapping("/status/{status}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get courses by status")
     public ResponseEntity<StandardResponse<Object>> getByStatus(@PathVariable CourseStatus status) {
         List<CourseResponse> result = courseService.getByStatus(status);
@@ -87,6 +93,7 @@ public class CourseController {
     }
 
     @GetMapping("/semester/{semesterId}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get courses by semester")
     public ResponseEntity<StandardResponse<Object>> getBySemester(@PathVariable Long semesterId) {
         List<CourseResponse> result = courseService.getBySemester(semesterId);
@@ -94,6 +101,7 @@ public class CourseController {
     }
 
     @GetMapping("/mentor/{mentorId}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get courses by mentor")
     public ResponseEntity<StandardResponse<Object>> getByMentor(@PathVariable Long mentorId) {
         List<CourseResponse> result = courseService.getByMentor(mentorId);
@@ -101,6 +109,7 @@ public class CourseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MENTOR')")
     @Operation(summary = "Update course")
     public ResponseEntity<StandardResponse<Object>> update(
             @PathVariable Long id,
@@ -110,6 +119,7 @@ public class CourseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Delete course")
     public ResponseEntity<StandardResponse<String>> delete(@PathVariable Long id) {
         courseService.delete(id);

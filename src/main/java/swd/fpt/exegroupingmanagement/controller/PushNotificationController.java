@@ -36,6 +36,7 @@ public class PushNotificationController {
     PushNotificationService pushNotificationService;
 
     @PostMapping("/register-token")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Register device token for push notifications",
                description = "Mobile app calls this API after successful login to register FCM device token")
     public ResponseEntity<StandardResponse<Object>> registerDeviceToken(
@@ -46,6 +47,7 @@ public class PushNotificationController {
     }
 
     @DeleteMapping("/remove-token")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Remove device token (on logout)",
                description = "Mobile app calls this API when user logs out to stop receiving notifications")
     public ResponseEntity<StandardResponse<String>> removeDeviceToken(
@@ -57,6 +59,7 @@ public class PushNotificationController {
     
 
     @DeleteMapping("/remove-all-tokens")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Remove all device tokens of current user",
                description = "Logout from all devices")
     public ResponseEntity<StandardResponse<String>> removeAllDeviceTokens() {
@@ -66,6 +69,7 @@ public class PushNotificationController {
     }
     
     @GetMapping("/my-devices")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get my registered devices",
                description = "Get list of devices that can receive push notifications")
     public ResponseEntity<StandardResponse<Object>> getMyDevices() {
@@ -77,7 +81,7 @@ public class PushNotificationController {
     }
 
     @PostMapping("/send")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Send push notification to multiple users",
                description = "Send notification to selected users.")
     public ResponseEntity<StandardResponse<Object>> sendNotification(
@@ -105,7 +109,7 @@ public class PushNotificationController {
      * - Thông báo sự kiện quan trọng
      */
     @PostMapping("/broadcast")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Broadcast notification to all users (Admin only)",
                description = "Send notification to ALL users. Use carefully for important announcements only.")
     public ResponseEntity<StandardResponse<Object>> broadcastNotification(
@@ -127,6 +131,7 @@ public class PushNotificationController {
      * Dùng để test xem notification có hoạt động không
      */
     @PostMapping("/test")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Send test notification to yourself",
                description = "Send a test notification to your own devices for testing purposes")
     public ResponseEntity<StandardResponse<Object>> sendTestNotification(

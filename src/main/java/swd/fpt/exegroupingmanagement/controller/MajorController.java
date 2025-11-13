@@ -2,8 +2,8 @@ package swd.fpt.exegroupingmanagement.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +35,7 @@ public class MajorController {
     MajorService majorService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Create a new major")
     public ResponseEntity<StandardResponse<Object>> create(@Valid @RequestBody MajorRequest request) {
         MajorResponse result = majorService.create(request);
@@ -42,6 +43,7 @@ public class MajorController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get major by ID")
     public ResponseEntity<StandardResponse<Object>> getById(@PathVariable Long id) {
         MajorResponse result = majorService.getById(id);
@@ -49,6 +51,7 @@ public class MajorController {
     }
 
     @GetMapping("/code/{code}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get major by code")
     public ResponseEntity<StandardResponse<Object>> getByCode(@PathVariable String code) {
         MajorResponse result = majorService.getByCode(code);
@@ -56,6 +59,7 @@ public class MajorController {
     }
 
     @GetMapping
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Get all majors")
     public ResponseEntity<StandardResponse<Object>> getAll() {
         List<MajorResponse> result = majorService.getAll();
@@ -75,6 +79,7 @@ public class MajorController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Update major")
     public ResponseEntity<StandardResponse<Object>> update(
             @PathVariable Long id,
@@ -84,6 +89,7 @@ public class MajorController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Delete major")
     public ResponseEntity<StandardResponse<String>> delete(@PathVariable Long id) {
         majorService.delete(id);
