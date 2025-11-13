@@ -13,5 +13,6 @@ public class SubjectResponse {
     String code;
     String name;
     String prerequisiteCodes;
+    Boolean isDeleted;
 }
 

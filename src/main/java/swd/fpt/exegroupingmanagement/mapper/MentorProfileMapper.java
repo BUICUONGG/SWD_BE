@@ -18,6 +18,7 @@ public interface MentorProfileMapper {
     @Mapping(target = "userId", source = "user.userId")
     @Mapping(target = "userEmail", source = "user.email")
     @Mapping(target = "userFullName", source = "user.fullName")
+    @Mapping(target = "isDeleted", source = "deleted")
     MentorProfileResponse toResponse(MentorProfileEntity entity);
     
     List<MentorProfileResponse> toResponseList(List<MentorProfileEntity> entities);

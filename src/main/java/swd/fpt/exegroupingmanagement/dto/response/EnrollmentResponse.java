@@ -16,7 +16,8 @@ public class EnrollmentResponse {
     Long approvedBy;
     LocalDateTime approvedAt;
     LocalDateTime completedAt;
-    
+    Boolean isDeleted;
+
     // Related entities
     Long userId;
     String userEmail;

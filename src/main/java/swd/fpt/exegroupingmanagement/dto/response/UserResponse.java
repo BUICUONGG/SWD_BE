@@ -1,12 +1,16 @@
 package swd.fpt.exegroupingmanagement.dto.response;
 
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import swd.fpt.exegroupingmanagement.enums.Gender;
 import swd.fpt.exegroupingmanagement.enums.Provider;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter

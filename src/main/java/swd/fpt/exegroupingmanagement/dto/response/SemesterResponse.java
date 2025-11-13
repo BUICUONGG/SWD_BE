@@ -19,5 +19,6 @@ public class SemesterResponse{
     SemesterTerm term;
     LocalDate startDate;
     LocalDate endDate;
+    Boolean isDeleted;
 }
 

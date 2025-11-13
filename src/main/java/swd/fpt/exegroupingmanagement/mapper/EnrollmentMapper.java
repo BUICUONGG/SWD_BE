@@ -17,6 +17,7 @@ public interface EnrollmentMapper {
     @Mapping(target = "courseId", source = "course.courseId")
     @Mapping(target = "courseCode", source = "course.code")
     @Mapping(target = "courseName", source = "course.name")
+    @Mapping(target = "isDeleted", source = "deleted")
     EnrollmentResponse toResponse(EnrollmentEntity entity);
     
     List<EnrollmentResponse> toResponseList(List<EnrollmentEntity> entities);

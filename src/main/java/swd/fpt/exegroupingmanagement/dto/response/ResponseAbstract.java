@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public abstract class ResponseAbstract {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Boolean isDeleted;
 
     protected ResponseAbstract() {};
 }

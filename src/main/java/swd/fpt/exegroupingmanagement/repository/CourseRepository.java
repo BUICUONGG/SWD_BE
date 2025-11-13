@@ -23,12 +23,12 @@ public interface CourseRepository extends JpaRepository<CourseEntity, Long>, Jpa
     List<CourseEntity> findByMentor_UserId(Long mentorId);
     
     // Query courses that need status update
-    @Query("SELECT c FROM CourseEntity c WHERE c.status = :status AND c.semester.startDate <= :currentDate AND c.deleted = false")
+    @Query("SELECT c FROM CourseEntity c WHERE c.status = :status AND c.semester.startDate <= :currentDate AND c.isDeleted = false")
     List<CourseEntity> findUpcomingCoursesToOpen(@Param("status") CourseStatus status, @Param("currentDate") LocalDate currentDate);
     
-    @Query("SELECT c FROM CourseEntity c WHERE c.status = :status AND c.teamFormationDeadline <= :currentDateTime AND c.deleted = false")
+    @Query("SELECT c FROM CourseEntity c WHERE c.status = :status AND c.teamFormationDeadline <= :currentDateTime AND c.isDeleted = false")
     List<CourseEntity> findOpenCoursesToStart(@Param("status") CourseStatus status, @Param("currentDateTime") LocalDateTime currentDateTime);
     
-    @Query("SELECT c FROM CourseEntity c WHERE c.status = :status AND c.semester.endDate <= :currentDate AND c.deleted = false")
+    @Query("SELECT c FROM CourseEntity c WHERE c.status = :status AND c.semester.endDate <= :currentDate AND c.isDeleted = false")
     List<CourseEntity> findInProgressCoursesToComplete(@Param("status") CourseStatus status, @Param("currentDate") LocalDate currentDate);
 }

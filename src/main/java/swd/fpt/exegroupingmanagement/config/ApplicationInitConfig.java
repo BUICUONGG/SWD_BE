@@ -51,6 +51,32 @@ public class ApplicationInitConfig {
     @Bean
     ApplicationRunner applicationRunner() {
         return args -> {
+            // Tạo majors TRƯỚC để users có thể reference
+            if (majorRepository.count() == 0) {
+                MajorEntity seMajor = MajorEntity.builder()
+                        .code("SE")
+                        .name("Software Engineering")
+                        .isActive(true)
+                        .build();
+                majorRepository.save(seMajor);
+                
+                MajorEntity ssMajor = MajorEntity.builder()
+                        .code("SS")
+                        .name("Business")
+                        .isActive(true)
+                        .build();
+                majorRepository.save(ssMajor);
+                
+                MajorEntity saMajor = MajorEntity.builder()
+                        .code("SA")
+                        .name("Languages")
+                        .isActive(true)
+                        .build();
+                majorRepository.save(saMajor);
+                
+            }
+            
+            // Tạo roles và users SAU khi đã có majors
             if (roleRepository.findByRoleName(PredefinedRole.ROLE_ADMIN).isEmpty()) {
                 RoleEntity adminRole = RoleEntity.builder()
                         .roleName(PredefinedRole.ROLE_ADMIN)
@@ -101,30 +127,6 @@ public class ApplicationInitConfig {
                         .passwordHash(passwordEncoder.encode("mentor"))
                         .build();
                 userRepository.save(mentorAccount);
-            }
-            
-            if (majorRepository.count() == 0) {
-                MajorEntity seMajor = MajorEntity.builder()
-                        .code("SE")
-                        .name("Software Engineering")
-                        .isActive(true)
-                        .build();
-                majorRepository.save(seMajor);
-                
-                MajorEntity ssMajor = MajorEntity.builder()
-                        .code("SS")
-                        .name("Business")
-                        .isActive(true)
-                        .build();
-                majorRepository.save(ssMajor);
-                
-                MajorEntity saMajor = MajorEntity.builder()
-                        .code("SA")
-                        .name("Languages")
-                        .isActive(true)
-                        .build();
-                majorRepository.save(saMajor);
-                
             }
             
             if (subjectRepository.count() == 0) {

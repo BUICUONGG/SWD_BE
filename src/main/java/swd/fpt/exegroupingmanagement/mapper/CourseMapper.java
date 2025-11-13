@@ -21,6 +21,7 @@ public interface CourseMapper {
     @Mapping(target = "subjectCode", source = "subject.code")
     @Mapping(target = "semesterId", source = "semester.semesterId")
     @Mapping(target = "semesterCode", source = "semester.code")
+    @Mapping(target = "isDeleted", source = "deleted")
     CourseResponse toResponse(CourseEntity entity);
     
     List<CourseResponse> toResponseList(List<CourseEntity> entities);

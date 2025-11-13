@@ -13,5 +13,6 @@ public class MajorResponse{
     String code;
     String name;
     Boolean isActive;
+    Boolean isDeleted;
 }
 

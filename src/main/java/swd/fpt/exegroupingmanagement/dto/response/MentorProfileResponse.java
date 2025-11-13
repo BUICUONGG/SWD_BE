@@ -11,7 +11,8 @@ import lombok.experimental.FieldDefaults;
 public class MentorProfileResponse{
     Long mentorProfileId;
     String shortName;
-    
+    Boolean isDeleted;
+
     // Related user info
     Long userId;
     String userEmail;

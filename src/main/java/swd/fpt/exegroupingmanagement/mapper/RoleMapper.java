@@ -9,7 +9,10 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
     RoleEntity toRole(RoleRequest roleRequest);
+
+    @Mapping(target = "isDeleted", source = "deleted")
     RoleResponse toRoleResponse(RoleEntity role);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE )
     void updateRole(RoleRequest roleRequest, @MappingTarget RoleEntity role);
 }

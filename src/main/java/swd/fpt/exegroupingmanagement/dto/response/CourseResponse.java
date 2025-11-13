@@ -19,7 +19,8 @@ public class CourseResponse  {
     Integer currentStudents;
     LocalDateTime teamFormationDeadline;
     CourseStatus status;
-    
+    Boolean isDeleted;
+
     // Related entities
     Long mentorId;
     String mentorName;
