@@ -34,6 +34,7 @@ public class UserResponse extends ResponseAbstract{
     public static class UserLoginResponse{
         String accessToken;
         String refreshToken;
+        Long userId;
         String roleName;
     }
 }
