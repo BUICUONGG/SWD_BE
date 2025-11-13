@@ -12,10 +12,7 @@ import swd.fpt.exegroupingmanagement.entity.TeamEntity;
 import swd.fpt.exegroupingmanagement.entity.TeamMemberEntity;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceConflictException;
 import swd.fpt.exegroupingmanagement.exception.exceptions.ResourceNotFoundException;
-import swd.fpt.exegroupingmanagement.repository.EnrollmentRepository;
-import swd.fpt.exegroupingmanagement.repository.IdeaRepository;
-import swd.fpt.exegroupingmanagement.repository.TeamMemberRepository;
-import swd.fpt.exegroupingmanagement.repository.TeamRepository;
+import swd.fpt.exegroupingmanagement.repository.*;
 import swd.fpt.exegroupingmanagement.service.TeamService;
 
 import java.util.List;
@@ -28,6 +25,7 @@ public class TeamServiceImpl implements TeamService {
     EnrollmentRepository enrollmentRepository;
     TeamMemberRepository teamMemberRepository;
     IdeaRepository ideaRepository;
+    private final CourseRepository courseRepository;
 
     @Transactional
     public TeamEntity createTeam(Long enrollmentId, String teamName) {
@@ -92,5 +90,11 @@ public class TeamServiceImpl implements TeamService {
                 .stream()
                 .map(TeamMemberEntity::getTeam)
                 .toList();
+    }
+
+    @Override
+    public List<TeamEntity> getTeamsInCourse(Long courseId, Long mentorId) {
+        return teamRepository.findByCourse(courseRepository.findByCourseIdAndMentor_UserId(courseId, mentorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course không tồn tại")));
     }
 }

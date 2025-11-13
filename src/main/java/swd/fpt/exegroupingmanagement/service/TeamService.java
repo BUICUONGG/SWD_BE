@@ -12,4 +12,6 @@ public interface TeamService {
     IdeaEntity selectMainIdea(Long leaderEnrollmentId, Long ideaId);
 
     List<TeamEntity> getTeamByEnrollment(Long enrollmentId);
+
+    List<TeamEntity> getTeamsInCourse(Long courseId, Long mentorId);
 }

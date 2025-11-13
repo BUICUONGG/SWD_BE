@@ -41,6 +41,15 @@ public class TeamController {
         return ResponseEntity.ok(success(teamService.getTeamByEnrollment(enrollmentId)));
     }
 
+    // danh sách team thuộc một course
+    @GetMapping("")
+    @Operation(summary = "Get teams in a course",
+            description = "Retrieve teams information for the given course ID.")
+    public ResponseEntity<StandardResponse<Object>> getTeamsInCourse(@RequestParam Long CourseId,
+                                                                     @RequestParam Long mentorId) {
+        return ResponseEntity.ok(success(teamService.getTeamsInCourse(CourseId, mentorId)));
+    }
+
     // leader chọn idea chính
     @PutMapping("/{teamId}/select-idea")
     @Operation(summary = "Select main idea for team",
