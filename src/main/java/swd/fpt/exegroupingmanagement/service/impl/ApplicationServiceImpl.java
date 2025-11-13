@@ -39,7 +39,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         // check đã gửi đơn pending hoặc accepted chưa
         boolean alreadyApplied = applicationRepository.existsByTeamEntityAndEnrollmentAndStatusIn(
-                team, enrollment, List.of(ApplicationStatus.PENDING, ApplicationStatus.ACCEPTED)
+                team, enrollment, List.of(ApplicationStatus.APPLIED, ApplicationStatus.ACCEPTED)
         );
         if (alreadyApplied) {
             throw new ResourceConflictException("Bạn đã gửi đơn vào team này rồi");
@@ -48,7 +48,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         ApplicationEntity app = ApplicationEntity.builder()
                 .enrollment(enrollment)
                 .teamEntity(team)
-                .status(ApplicationStatus.PENDING)
+                .status(ApplicationStatus.APPLIED)
                 .build();
         return applicationRepository.save(app);
     }
@@ -71,7 +71,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         // check nếu đã có lời mời trước đó
         boolean alreadyInvited = applicationRepository.existsByTeamEntityAndEnrollmentAndStatusIn(
-                team, target, List.of(ApplicationStatus.PENDING)
+                team, target, List.of(ApplicationStatus.INVITED)
         );
         if (alreadyInvited) {
             throw new ResourceConflictException("Đã gửi lời mời đến người này rồi");
@@ -80,7 +80,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         ApplicationEntity invite = ApplicationEntity.builder()
                 .enrollment(target)
                 .teamEntity(team)
-                .status(ApplicationStatus.PENDING)
+                .status(ApplicationStatus.INVITED)
                 .build();
         return applicationRepository.save(invite);
     }
@@ -97,7 +97,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new ResourceConflictException("Không có quyền xử lý đơn của team khác");
         }
 
-        if (app.getStatus() != ApplicationStatus.PENDING) {
+        if (app.getStatus() != ApplicationStatus.APPLIED && app.getStatus() != ApplicationStatus.INVITED) {
             throw new ResourceConflictException("Đơn đã được xử lý trước đó");
         }
 
