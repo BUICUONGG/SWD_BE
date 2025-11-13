@@ -33,7 +33,7 @@ public class TeamEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @Column(name = "status", length = 50)
-    TeamStatus status = TeamStatus.PENDING;
+    TeamStatus status = TeamStatus.OPENING;
 
     @OneToOne
     @JoinColumn(name = "idea_id")

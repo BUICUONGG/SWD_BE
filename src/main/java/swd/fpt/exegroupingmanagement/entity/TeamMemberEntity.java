@@ -21,9 +21,13 @@ public class TeamMemberEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "team_id")
-    TeamEntity teamEntity;
+    TeamEntity team;
 
     @ManyToOne
     @JoinColumn(name = "enrollment_id")
     EnrollmentEntity enrollment;
+
+    @Column(name = "is_leader", nullable = false)
+    @Builder.Default
+    Boolean isLeader = false;
 }
