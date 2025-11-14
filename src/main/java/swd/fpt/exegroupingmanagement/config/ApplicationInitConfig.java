@@ -17,14 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 import swd.fpt.exegroupingmanagement.constant.PredefinedRole;
 import swd.fpt.exegroupingmanagement.entity.CourseEntity;
 import swd.fpt.exegroupingmanagement.entity.EnrollmentEntity;
-import swd.fpt.exegroupingmanagement.entity.IdeaEntity;
 import swd.fpt.exegroupingmanagement.entity.MajorEntity;
 import swd.fpt.exegroupingmanagement.entity.MentorProfileEntity;
 import swd.fpt.exegroupingmanagement.entity.RoleEntity;
 import swd.fpt.exegroupingmanagement.entity.SemesterEntity;
 import swd.fpt.exegroupingmanagement.entity.SubjectEntity;
-import swd.fpt.exegroupingmanagement.entity.TeamEntity;
-import swd.fpt.exegroupingmanagement.entity.TeamMemberEntity;
 import swd.fpt.exegroupingmanagement.entity.UserEntity;
 import swd.fpt.exegroupingmanagement.enums.CourseStatus;
 import swd.fpt.exegroupingmanagement.enums.Gender;
@@ -32,14 +29,11 @@ import swd.fpt.exegroupingmanagement.enums.SemesterTerm;
 import swd.fpt.exegroupingmanagement.enums.UserStatus;
 import swd.fpt.exegroupingmanagement.repository.CourseRepository;
 import swd.fpt.exegroupingmanagement.repository.EnrollmentRepository;
-import swd.fpt.exegroupingmanagement.repository.IdeaRepository;
 import swd.fpt.exegroupingmanagement.repository.MajorRepository;
 import swd.fpt.exegroupingmanagement.repository.MentorProfileRepository;
 import swd.fpt.exegroupingmanagement.repository.RoleRepository;
 import swd.fpt.exegroupingmanagement.repository.SemesterRepository;
 import swd.fpt.exegroupingmanagement.repository.SubjectRepository;
-import swd.fpt.exegroupingmanagement.repository.TeamMemberRepository;
-import swd.fpt.exegroupingmanagement.repository.TeamRepository;
 import swd.fpt.exegroupingmanagement.repository.UserRepository;
 
 @Slf4j
@@ -55,14 +49,9 @@ public class ApplicationInitConfig {
     CourseRepository courseRepository;
     EnrollmentRepository enrollmentRepository;
     MentorProfileRepository mentorProfileRepository;
-    TeamRepository teamRepository;
-    TeamMemberRepository teamMemberRepository;
-    IdeaRepository ideaRepository;
     PasswordEncoder passwordEncoder;
 
-    private static final int MAX_TEAM_SIZE = 6;
     private static final int TOTAL_STUDENTS = 30;
-    private static final int TOTAL_TEAMS = 7;
 
     @Bean
     ApplicationRunner applicationRunner() {
@@ -103,13 +92,10 @@ public class ApplicationInitConfig {
             CourseEntity course = createCourse(subject, semester, mentors.get(0));
 
             // 8. Enrollments
-            List<EnrollmentEntity> enrollments = enrollStudents(students, course);
+            enrollStudents(students, course);
 
-            // 9. Teams
-            createTeams(enrollments, course);
-
-            log.info("📊 Summary: {} users, {} enrollments, {} teams",
-                    userRepository.count(), enrollmentRepository.count(), teamRepository.count());
+            log.info("📊 Summary: {} users, {} enrollments",
+                    userRepository.count(), enrollmentRepository.count());
         } catch (Exception e) {
             log.error("❌ Error during initialization: {}", e.getMessage(), e);
         }
@@ -258,13 +244,14 @@ public class ApplicationInitConfig {
 
     private List<EnrollmentEntity> enrollStudents(List<UserEntity> students, CourseEntity course) {
         List<EnrollmentEntity> enrollments = new ArrayList<>();
+        
         for (UserEntity student : students) {
             EnrollmentEntity enrollment = enrollmentRepository.findByUserAndCourse(student, course)
                     .orElseGet(() -> {
                         EnrollmentEntity e = EnrollmentEntity.builder()
                                 .user(student)
                                 .course(course)
-                                .enrollmentDate(LocalDateTime.now())
+                                .enrollmentDate(LocalDateTime.now().minusDays(5)) // Enrolled 5 days ago
                                 .build();
                         return enrollmentRepository.save(e);
                     });
@@ -275,68 +262,8 @@ public class ApplicationInitConfig {
         course.setCurrentStudents(enrollments.size());
         courseRepository.save(course);
 
-        log.info("✅ Enrolled {} students", enrollments.size());
+        log.info("✅ Enrolled and approved {} students", enrollments.size());
         return enrollments;
-    }
-
-    private void createTeams(List<EnrollmentEntity> enrollments, CourseEntity course) {
-        if (teamRepository.count() > 0) {
-            log.info("⏭️  Teams already exist");
-            return;
-        }
-
-        String[] teamNames = {"Alpha Team", "Beta Squad", "Gamma Force", "Delta Warriors",
-                             "Epsilon Innovators", "Zeta Creators", "Eta Pioneers"};
-
-        int enrollmentIndex = 0;
-
-        for (int teamNum = 0; teamNum < TOTAL_TEAMS; teamNum++) {
-            TeamEntity team = TeamEntity.builder()
-                    .name(teamNames[teamNum])
-                    .course(course)
-                    .build();
-            teamRepository.save(team);
-
-            int remainingStudents = enrollments.size() - enrollmentIndex;
-            int remainingTeams = TOTAL_TEAMS - teamNum;
-            int membersForThisTeam = Math.min(
-                (int) Math.ceil((double) remainingStudents / remainingTeams),
-                MAX_TEAM_SIZE
-            );
-
-            for (int memberIndex = 0; memberIndex < membersForThisTeam && enrollmentIndex < enrollments.size(); memberIndex++) {
-                EnrollmentEntity enrollment = enrollments.get(enrollmentIndex);
-                boolean isLeader = (memberIndex == 0);
-
-                TeamMemberEntity teamMember = TeamMemberEntity.builder()
-                        .team(team)
-                        .enrollment(enrollment)
-                        .isLeader(isLeader)
-                        .build();
-                teamMemberRepository.save(teamMember);
-
-                // Create ideas
-                for (int ideaNum = 0; ideaNum < 2; ideaNum++) {
-                    IdeaEntity idea = IdeaEntity.builder()
-                            .name(String.format("Idea %d - %s", ideaNum + 1, enrollment.getUser().getFullName()))
-                            .description("Great startup idea for team " + teamNames[teamNum])
-                            .enrollment(enrollment)
-                            .build();
-                    ideaRepository.save(idea);
-
-                    if (isLeader && ideaNum == 0) {
-                        team.setIdea(idea);
-                        teamRepository.save(team);
-                    }
-                }
-
-                enrollmentIndex++;
-            }
-
-            log.info("✅ Team {}: {} ({} members)", teamNum + 1, teamNames[teamNum], membersForThisTeam);
-        }
-
-        log.info("✅ Created {} teams with {} total members", teamRepository.count(), teamMemberRepository.count());
     }
 }
 

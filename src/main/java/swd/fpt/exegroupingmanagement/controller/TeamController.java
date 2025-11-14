@@ -25,12 +25,11 @@ public class TeamController {
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('STUDENT')")
     @Operation(summary = "Create a new team",
-            description = "Create a new team for a course enrollment. The creator becomes the team leader.")
+            description = "Create a new team. Automatically finds your active course enrollment. The creator becomes the team leader.")
     public ResponseEntity<StandardResponse<Object>> createTeam(
-            @RequestParam Long enrollmentId,
             @RequestParam String teamName
     ) {
-        return ResponseEntity.ok(success("Tạo team thành công", teamService.createTeam(enrollmentId, teamName)));
+        return ResponseEntity.ok(success("Tạo team thành công", teamService.createTeam(teamName)));
     }
 
     // xem chi tiết team
@@ -65,9 +64,8 @@ public class TeamController {
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get teams in a course",
             description = "Retrieve teams information for the given course ID.")
-    public ResponseEntity<StandardResponse<Object>> getTeamsInCourse(@RequestParam Long CourseId,
-                                                                     @RequestParam Long mentorId) {
-        return ResponseEntity.ok(success(teamService.getTeamsInCourse(CourseId, mentorId)));
+    public ResponseEntity<StandardResponse<Object>> getTeamsInCourse(@RequestParam Long CourseId) {
+        return ResponseEntity.ok(success(teamService.getTeamsInCourse(CourseId)));
     }
 
     // leader chọn idea chính

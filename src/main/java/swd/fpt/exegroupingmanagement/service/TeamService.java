@@ -7,12 +7,12 @@ import java.util.List;
 
 @Service
 public interface TeamService {
-    TeamResponse createTeam(Long enrollmentId, String teamName);
+    TeamResponse createTeam(String teamName);
     TeamResponse getTeamDetails(Long teamId);
     TeamResponse selectMainIdea(Long teamId, Long leaderEnrollmentId, Long ideaId);
     List<TeamResponse> getMyTeams();
     List<TeamResponse> getTeamByEnrollment(Long enrollmentId);
-    List<TeamResponse> getTeamsInCourse(Long courseId, Long mentorId);
+    List<TeamResponse> getTeamsInCourse(Long courseId);
     TeamResponse updateTeamName(Long teamId, Long leaderEnrollmentId, String teamName);
     void removeMember(Long teamId, Long leaderEnrollmentId, Long enrollmentId);
     void leaveTeam(Long teamId, Long enrollmentId);

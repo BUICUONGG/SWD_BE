@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swd.fpt.exegroupingmanagement.dto.response.TeamResponse;
+import swd.fpt.exegroupingmanagement.entity.CourseEntity;
 import swd.fpt.exegroupingmanagement.entity.EnrollmentEntity;
 import swd.fpt.exegroupingmanagement.entity.IdeaEntity;
 import swd.fpt.exegroupingmanagement.entity.TeamEntity;
@@ -34,28 +35,55 @@ public class TeamServiceImpl implements TeamService {
     TeamMapper teamMapper;
 
     @Transactional
-    public TeamResponse createTeam(Long enrollmentId, String teamName) {
-        // Check enrollment tồn tại
-        EnrollmentEntity enrollment = enrollmentRepository.findById(enrollmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Enrollment không tồn tại"));
+    public TeamResponse createTeam(String teamName) {
+        // Get current logged-in user
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
-        // Check đã có team chưa (là member của bất kỳ team nào)
-        boolean isAlreadyInTeam = teamMemberRepository.existsByEnrollment(enrollment);
-        if (isAlreadyInTeam) {
-            throw new ResourceConflictException("Bạn đã tham gia một team khác trong khóa học này");
+        // Get all enrollments of current user
+        List<EnrollmentEntity> enrollments = enrollmentRepository.findByUser_UserId(user.getUserId());
+        if (enrollments.isEmpty()) {
+            throw new ResourceNotFoundException("Bạn chưa đăng ký khóa học nào");
         }
+
+        // Clean up all orphan team members first (where team is deleted/null)
+        for (EnrollmentEntity e : enrollments) {
+            List<TeamMemberEntity> members = teamMemberRepository.findByEnrollment(e);
+            for (TeamMemberEntity tm : members) {
+                if (tm.getTeam() == null) {
+                    teamMemberRepository.delete(tm);
+                }
+            }
+        }
+
+        // Find first enrollment without team
+        EnrollmentEntity targetEnrollment = null;
+        for (EnrollmentEntity e : enrollments) {
+            List<TeamMemberEntity> members = teamMemberRepository.findByEnrollment(e);
+            if (members.isEmpty()) {
+                targetEnrollment = e;
+                break;
+            }
+        }
+        
+        if (targetEnrollment == null) {
+            throw new ResourceConflictException("Bạn đã có team trong tất cả các khóa học");
+        }
+
+        CourseEntity course = targetEnrollment.getCourse();
 
         // Tạo team mới
         TeamEntity team = TeamEntity.builder()
                 .name(teamName)
-                .course(enrollment.getCourse())
+                .course(course)
                 .build();
         teamRepository.save(team);
 
         // Gán leader
         TeamMemberEntity leader = TeamMemberEntity.builder()
                 .team(team)
-                .enrollment(enrollment)
+                .enrollment(targetEnrollment)
                 .isLeader(true)
                 .build();
         teamMemberRepository.save(leader);
@@ -109,12 +137,17 @@ public class TeamServiceImpl implements TeamService {
         // Get all enrollments of this user
         List<EnrollmentEntity> enrollments = enrollmentRepository.findByUser_UserId(user.getUserId());
 
-        // Get all teams from all enrollments
+        // Get all teams from TeamMember table directly
         List<TeamEntity> teams = enrollments.stream()
-                .flatMap(enrollment -> enrollment.getTeamMembers().stream())
+                .flatMap(enrollment -> teamMemberRepository.findByEnrollment(enrollment).stream())
                 .map(TeamMemberEntity::getTeam)
+                .filter(team -> team != null) // Filter out null teams
                 .distinct()
                 .toList();
+
+        if (teams.isEmpty()) {
+            throw new ResourceNotFoundException("Bạn chưa tham gia nhóm nào");
+        }
 
         return teamMapper.toResponseList(teams);
     }
@@ -133,9 +166,11 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<TeamResponse> getTeamsInCourse(Long courseId, Long mentorId) {
-        List<TeamEntity> teams = teamRepository.findByCourse(courseRepository.findByCourseIdAndMentor_UserId(courseId, mentorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Course không tồn tại")));
+    public List<TeamResponse> getTeamsInCourse(Long courseId) {
+        CourseEntity course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course không tồn tại"));
+        
+        List<TeamEntity> teams = teamRepository.findByCourse(course);
 
         return teamMapper.toResponseList(teams);
     }
