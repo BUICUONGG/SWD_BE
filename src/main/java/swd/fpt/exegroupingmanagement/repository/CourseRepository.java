@@ -1,4 +1,4 @@
-package swd.fpt.exegroupingmanagement.repository;
+ package swd.fpt.exegroupingmanagement.repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,7 +11,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import swd.fpt.exegroupingmanagement.entity.CourseEntity;
+import swd.fpt.exegroupingmanagement.entity.CourseEntity;import swd.fpt.exegroupingmanagement.entity.SemesterEntity;
+import swd.fpt.exegroupingmanagement.entity.UserEntity;
 import swd.fpt.exegroupingmanagement.enums.CourseStatus;
 
 @Repository
@@ -21,6 +22,12 @@ public interface CourseRepository extends JpaRepository<CourseEntity, Long>, Jpa
     List<CourseEntity> findByStatus(CourseStatus status);
     List<CourseEntity> findBySemester_SemesterId(Long semesterId);
     List<CourseEntity> findByMentor_UserId(Long mentorId);
+
+    // New methods for report
+    long countByStatus(CourseStatus status);
+    List<CourseEntity> findBySemester(SemesterEntity semester);
+    List<CourseEntity> findByMentor(UserEntity mentor);
+    List<CourseEntity> findByMentorAndSemester(UserEntity mentor, SemesterEntity semester);
 
     Optional<CourseEntity> findByCourseIdAndMentor_UserId(Long courseId, Long mentorId);
 

@@ -31,10 +31,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourceNotFoundException("Team không tồn tại"));
 
-        // check đã là member chưa
-        boolean isMember = teamMemberRepository.existsByTeamAndEnrollment(team, enrollment);
-        if (isMember) {
-            throw new ResourceConflictException("Bạn đã là thành viên của team này rồi");
+        // check đã là member của bất kỳ team nào chưa
+        boolean isAlreadyInAnyTeam = teamMemberRepository.existsByEnrollment(enrollment);
+        if (isAlreadyInAnyTeam) {
+            throw new ResourceConflictException("Bạn đã tham gia một team khác rồi");
         }
 
         // check đã gửi đơn pending hoặc accepted chưa
@@ -56,25 +56,24 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public ApplicationEntity inviteToTeam(Long leaderEnrollmentId, Long targetEnrollmentId) {
         TeamMemberEntity leader = teamMemberRepository.findByEnrollment_EnrollmentIdAndIsLeaderTrue(leaderEnrollmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Leader không tồn tại hoặc chưa có team"));
+                .orElseThrow(() -> new ResourceNotFoundException("Bạn không phải leader hoặc chưa có team"));
         EnrollmentEntity target = enrollmentRepository.findById(targetEnrollmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Enrollment của người được mời không tồn tại"));
 
         TeamEntity team = leader.getTeam();
 
-        // check nếu target đã có team khác
-        boolean alreadyInTeam = teamMemberRepository.existsByEnrollmentAndIsLeaderTrue(target)
-                || teamMemberRepository.existsByTeamAndEnrollment(team, target);
-        if (alreadyInTeam) {
+        // check nếu target đã có team (là member của bất kỳ team nào)
+        boolean alreadyInAnyTeam = teamMemberRepository.existsByEnrollment(target);
+        if (alreadyInAnyTeam) {
             throw new ResourceConflictException("Người này đã tham gia team khác");
         }
 
         // check nếu đã có lời mời trước đó
         boolean alreadyInvited = applicationRepository.existsByTeamEntityAndEnrollmentAndStatusIn(
-                team, target, List.of(ApplicationStatus.INVITED)
+                team, target, List.of(ApplicationStatus.INVITED, ApplicationStatus.APPLIED)
         );
         if (alreadyInvited) {
-            throw new ResourceConflictException("Đã gửi lời mời đến người này rồi");
+            throw new ResourceConflictException("Đã có đơn liên quan đến người này rồi");
         }
 
         ApplicationEntity invite = ApplicationEntity.builder()
@@ -102,6 +101,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         if (accepted) {
+            // Check xem người này đã vào team khác chưa
+            boolean alreadyInAnyTeam = teamMemberRepository.existsByEnrollment(app.getEnrollment());
+            if (alreadyInAnyTeam) {
+                throw new ResourceConflictException("Người này đã tham gia team khác rồi");
+            }
+
             // Add member vào team
             TeamMemberEntity newMember = TeamMemberEntity.builder()
                     .team(app.getTeamEntity())
@@ -115,5 +120,48 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         applicationRepository.save(app);
+    }
+
+    @Override
+    public List<ApplicationEntity> getMyApplications(Long enrollmentId) {
+        EnrollmentEntity enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment không tồn tại"));
+
+        return applicationRepository.findByEnrollment(enrollment);
+    }
+
+    @Override
+    public List<ApplicationEntity> getTeamApplications(Long teamId, Long leaderEnrollmentId) {
+        TeamEntity team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team không tồn tại"));
+
+        // Check leader
+        TeamMemberEntity leader = teamMemberRepository.findByEnrollment_EnrollmentIdAndIsLeaderTrue(leaderEnrollmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bạn không phải leader"));
+
+        if (!leader.getTeam().getId().equals(teamId)) {
+            throw new ResourceConflictException("Bạn không phải leader của team này");
+        }
+
+        return applicationRepository.findByTeamEntity(team);
+    }
+
+    @Transactional
+    @Override
+    public void cancelApplication(Long applicationId, Long enrollmentId) {
+        ApplicationEntity app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Đơn không tồn tại"));
+
+        // Check ownership
+        if (!app.getEnrollment().getEnrollmentId().equals(enrollmentId)) {
+            throw new ResourceConflictException("Bạn không có quyền hủy đơn này");
+        }
+
+        // Chỉ cho phép hủy đơn pending
+        if (app.getStatus() != ApplicationStatus.APPLIED && app.getStatus() != ApplicationStatus.INVITED) {
+            throw new ResourceConflictException("Chỉ có thể hủy đơn đang chờ xử lý");
+        }
+
+        applicationRepository.delete(app);
     }
 }

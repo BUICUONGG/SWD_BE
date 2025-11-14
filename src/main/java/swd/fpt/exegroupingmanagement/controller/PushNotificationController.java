@@ -2,6 +2,7 @@ package swd.fpt.exegroupingmanagement.controller;
 
 import java.util.List;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +29,7 @@ import swd.fpt.exegroupingmanagement.service.PushNotificationService;
 
 @RestController
 @RequestMapping("/api/notifications")
+@ConditionalOnProperty(name = "firebase.enabled", havingValue = "true", matchIfMissing = false)
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(name = "Push Notification Management", description = "APIs for managing push notifications")

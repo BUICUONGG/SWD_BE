@@ -50,7 +50,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','MENTOR')")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get enrollments by user")
     public ResponseEntity<StandardResponse<Object>> getByUser(@PathVariable Long userId) {
         List<EnrollmentResponse> result = enrollmentService.getByUser(userId);

@@ -15,6 +15,8 @@ public interface ApplicationRepository extends JpaRepository<ApplicationEntity, 
 
     List<ApplicationEntity> findByEnrollment(EnrollmentEntity enrollment);
 
+    List<ApplicationEntity> findByTeamEntity(TeamEntity team);
+
     Optional<ApplicationEntity> findByTeamEntityAndEnrollment(TeamEntity team, EnrollmentEntity enrollment);
 
     boolean existsByTeamEntityAndEnrollmentAndStatusIn(
